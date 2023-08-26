@@ -1,0 +1,22 @@
+{
+  "name": "discord",
+  "version": "1.0.0",
+  "description": "",
+  "main": "bot.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^14.13.0",
+    "dot": "^1.1.3",
+    "dotenv": "^16.3.1",
+    "env": "^0.0.2"
+  },
+  "devDependencies": {
+    "eslint": "^8.48.0"
+  }
+}
