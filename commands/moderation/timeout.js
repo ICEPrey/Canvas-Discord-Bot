@@ -58,7 +58,7 @@ module.exports = {
                 const member = interaction.options.getMember("target");
                 await member.timeout(time);
                 await confirmation.update({
-                    content: `${target.username} has been timeout for reason: ${reason}`,
+                    content: `<@${target.id}> has been timeout for reason: ${reason}`,
                     components: [],
                 });
             } else if (confirmation.customId === "cancel") {

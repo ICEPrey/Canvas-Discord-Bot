@@ -51,7 +51,7 @@ module.exports = {
             if (confirmation.customId === "confirm") {
                 await interaction.guild.members.ban(target);
                 await confirmation.update({
-                    content: `${target.username} has been banned for reason: ${reason}`,
+                    content: `<@${target.id}> has been banned for reason: ${reason}`,
                     components: [],
                 });
             } else if (confirmation.customId === "cancel") {
