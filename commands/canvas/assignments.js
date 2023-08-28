@@ -83,6 +83,7 @@ module.exports = {
                 hour12: true,
             };
             const formattedDueDate = dueDate.toLocaleString("en-US", options);
+
             const embed = new EmbedBuilder()
                 .setColor(randomColor)
                 .setTitle(assignments[currentIndex].title)
@@ -102,6 +103,16 @@ module.exports = {
             await interaction.reply({ embeds: [embed], components: [row] });
 
             const filter = (i) => {
+                // Check if the user ID matches the original interaction's user ID
+                if (i.user.id !== interaction.user.id) {
+                    // Acknowledge the interaction but don't do anything
+                    i.reply({
+                        content: "You are not authorized to use these buttons.",
+                        ephemeral: true,
+                    });
+                    return false;
+                }
+
                 i.deferUpdate();
                 return i.customId === "previous" || i.customId === "next";
             };
