@@ -1,5 +1,6 @@
 # Packages
 node_modules
+build
 
 # Log files
 logs

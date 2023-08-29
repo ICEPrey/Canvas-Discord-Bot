@@ -1,25 +1,25 @@
-const {
+import {
     SlashCommandBuilder,
     PermissionFlagsBits,
-    ButtonBuilder,
     ButtonStyle,
+    ButtonBuilder,
     ActionRowBuilder,
-} = require("discord.js");
+} from "discord.js";
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName("kick")
-        .setDescription("Select a member and kick them.")
+        .setName("ban")
+        .setDescription("Select a member and ban them.")
         .addUserOption((option) =>
             option
                 .setName("target")
-                .setDescription("The member to kick")
+                .setDescription("The member to ban")
                 .setRequired(true),
         )
         .addStringOption((option) =>
-            option.setName("reason").setDescription("The reason for kicking"),
+            option.setName("reason").setDescription("The reason for banning"),
         )
-        .setDefaultMemberPermissions(PermissionFlagsBits.KickMembers)
+        .setDefaultMemberPermissions(PermissionFlagsBits.BanMembers)
         .setDMPermission(false),
     async execute(interaction) {
         const target = interaction.options.getUser("target");
@@ -28,7 +28,7 @@ module.exports = {
 
         const confirm = new ButtonBuilder()
             .setCustomId("confirm")
-            .setLabel("Confirm Kick")
+            .setLabel("Confirm Ban")
             .setStyle(ButtonStyle.Danger);
 
         const cancel = new ButtonBuilder()
@@ -38,7 +38,7 @@ module.exports = {
         const row = new ActionRowBuilder().addComponents(cancel, confirm);
 
         const response = await interaction.reply({
-            content: `Are you sure you want to kick ${target.username} for reason: ${reason}?`,
+            content: `Are you sure you want to ban ${target.username} for reason: ${reason}?`,
             components: [row],
         });
         const collectorFilter = (i) => i.user.id === interaction.user.id;
@@ -49,9 +49,9 @@ module.exports = {
                 time: 60000,
             });
             if (confirmation.customId === "confirm") {
-                await interaction.guild.members.kick(target);
+                await interaction.guild.members.ban(target);
                 await confirmation.update({
-                    content: `<@${target.id}> has been kicked for reason: ${reason}`,
+                    content: `<@${target.id}> has been banned for reason: ${reason}`,
                     components: [],
                 });
             } else if (confirmation.customId === "cancel") {

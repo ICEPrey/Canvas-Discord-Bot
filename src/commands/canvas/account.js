@@ -1,4 +1,4 @@
-const supabase = require("../../helpers/client");
+import supabase from "../../helpers/client";
 const {
     SlashCommandBuilder,
     ButtonBuilder,
