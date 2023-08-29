@@ -19,10 +19,7 @@ dist
 dist-docs
 
 # Miscellaneous
-.tmp
 .vscode/*
-!.vscode/extensions.json
-!.vscode/settings.json
 .idea
 .DS_Store
 .turbo
