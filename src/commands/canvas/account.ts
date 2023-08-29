@@ -1,4 +1,4 @@
-import supabase from "../../helpers/client";
+import { supabase } from "../../helpers/client";
 const {
     SlashCommandBuilder,
     ButtonBuilder,
@@ -6,9 +6,9 @@ const {
     ActionRowBuilder,
 } = require("discord.js");
 
-async function AcessToken(token, user) {
+async function AcessToken(token: string, user: number) {
     try {
-        const { error } = await supabase.supabase
+        const { error } = await supabase
             .from("canvas")
             .insert({ token: token, discord_user: user });
 
@@ -25,14 +25,14 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName("account")
         .setDescription("Set an access token to use the /assignment command")
-        .addStringOption((option) =>
+        .addStringOption((option: any) =>
             option
                 .setName("token")
                 .setDescription("The canvas access token")
                 .setRequired(true),
         )
         .setDMPermission(false),
-    async execute(interaction) {
+    async execute(interaction: any) {
         try {
             const token = interaction.options.getString("token");
             const confirm = new ButtonBuilder()
@@ -51,7 +51,8 @@ module.exports = {
                 content: `Are you sure you want to submit this token ${token} ?`,
                 components: [row],
             });
-            const collectorFilter = (i) => i.user.id === interaction.user.id;
+            const collectorFilter = (i: { user: { id: number } }) =>
+                i.user.id === interaction.user.id;
 
             try {
                 const confirmation = await response.awaitMessageComponent({

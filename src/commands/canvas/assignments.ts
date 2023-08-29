@@ -53,7 +53,7 @@ async function GetCalendar() {
 
         const events = res.data;
         const assignments = events.filter(
-            (event) => event.type === "assignment",
+            (event: { type: string }) => event.type === "assignment",
         );
         return assignments;
     } catch (error) {
@@ -68,12 +68,11 @@ module.exports = {
         .setDescription(
             "These are all the assignments in your course with an upcoming due date:",
         ),
-    async execute(interaction) {
+    async execute(interaction: any) {
         try {
             const assignments = await GetCalendar();
             let currentIndex = 0;
             const dueDate = new Date(assignments[currentIndex].start_at);
-
             const options = {
                 year: "numeric",
                 month: "short",
@@ -81,7 +80,8 @@ module.exports = {
                 hour: "numeric",
                 minute: "numeric",
                 hour12: true,
-            };
+            } as const; // Use "as const" to assert the type of options
+
             const formattedDueDate = dueDate.toLocaleString("en-US", options);
 
             const embed = new EmbedBuilder()
@@ -102,7 +102,12 @@ module.exports = {
 
             await interaction.reply({ embeds: [embed], components: [row] });
 
-            const filter = (i) => {
+            const filter = (i: {
+                user: { id: number };
+                reply: (arg0: { content: string; ephemeral: boolean }) => void;
+                deferUpdate: () => void;
+                customId: string;
+            }) => {
                 // Check if the user ID matches the original interaction's user ID
                 if (i.user.id !== interaction.user.id) {
                     // Acknowledge the interaction but don't do anything
@@ -123,20 +128,35 @@ module.exports = {
                     time: 60000,
                 });
 
-            collector.on("collect", async (i) => {
-                if (i.customId === "previous") {
-                    if (currentIndex > 0) currentIndex--;
-                } else if (i.customId === "next") {
-                    if (currentIndex < assignments.length - 1) currentIndex++;
-                }
+            collector.on(
+                "collect",
+                async (i: {
+                    customId: string;
+                    message: { edit: (arg0: { embeds: any[] }) => any };
+                }) => {
+                    if (i.customId === "previous") {
+                        if (currentIndex > 0) currentIndex--;
+                    } else if (i.customId === "next") {
+                        if (currentIndex < assignments.length - 1)
+                            currentIndex++;
+                    }
 
-                const updatedEmbed = new EmbedBuilder()
-                    .setColor(randomColor)
-                    .setTitle(assignments[currentIndex].title)
-                    .setDescription(`Due at: ${formattedDueDate}`);
+                    const dueDate = new Date(
+                        assignments[currentIndex].start_at,
+                    );
+                    const formattedDueDate = dueDate.toLocaleString(
+                        "en-US",
+                        options,
+                    );
 
-                await i.message.edit({ embeds: [updatedEmbed] });
-            });
+                    const updatedEmbed = new EmbedBuilder()
+                        .setColor(randomColor)
+                        .setTitle(assignments[currentIndex].title)
+                        .setDescription(`Due at: ${formattedDueDate}`);
+
+                    await i.message.edit({ embeds: [updatedEmbed] });
+                },
+            );
 
             collector.on("end", () => {
                 const cancelRow = new ActionRowBuilder().addComponents(

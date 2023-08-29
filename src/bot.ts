@@ -3,7 +3,7 @@ import { join } from "path";
 import { Client, Collection, GatewayIntentBits } from "discord.js";
 require("dotenv/config");
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+const client: Client = new Client({ intents: [GatewayIntentBits.Guilds] });
 client.commands = new Collection();
 const foldersPath = join(__dirname, "commands");
 const commandFolders = readdirSync(foldersPath);

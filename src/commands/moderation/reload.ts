@@ -10,7 +10,7 @@ module.exports = {
                 .setDescription("The command to reload.")
                 .setRequired(true),
         ),
-    async execute(interaction) {
+    async execute(interaction: any) {
         const commandName = interaction.options
             .getString("command", true)
             .toLowerCase();

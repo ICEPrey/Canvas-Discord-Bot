@@ -3,9 +3,9 @@ import {
     CommandInteraction,
     Collection,
     PermissionResolvable,
-    Message,
     AutocompleteInteraction,
     ChatInputCommandInteraction,
+    Interaction,
 } from "discord.js";
 
 export interface SlashCommand {
@@ -16,11 +16,13 @@ export interface SlashCommand {
 }
 
 export interface Command {
-    name: string;
-    execute: (message: Message, args: Array<string>) => void;
-    permissions: Array<PermissionResolvable>;
-    aliases: Array<string>;
-    cooldown?: number;
+    data: {
+        name: string;
+        permissions: Array<PermissionResolvable>;
+        aliases: Array<string>;
+        cooldown?: number;
+    };
+    execute: (interaction: Interaction) => void;
 }
 
 interface GuildOptions {
@@ -42,6 +44,7 @@ declare global {
             ACCESS: string;
             SUPABASE_URL: string;
             SUPABASE_ANON: string;
+            GUILD_ID: string;
         }
     }
 }

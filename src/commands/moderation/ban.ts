@@ -21,7 +21,7 @@ module.exports = {
         )
         .setDefaultMemberPermissions(PermissionFlagsBits.BanMembers)
         .setDMPermission(false),
-    async execute(interaction) {
+    async execute(interaction: any) {
         const target = interaction.options.getUser("target");
         const reason =
             interaction.options.getString("reason") ?? "No reason provided";
@@ -41,7 +41,8 @@ module.exports = {
             content: `Are you sure you want to ban ${target.username} for reason: ${reason}?`,
             components: [row],
         });
-        const collectorFilter = (i) => i.user.id === interaction.user.id;
+        const collectorFilter = (i: { user: { id: number } }) =>
+            i.user.id === interaction.user.id;
 
         try {
             const confirmation = await response.awaitMessageComponent({

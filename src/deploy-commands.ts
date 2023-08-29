@@ -1,8 +1,9 @@
 import { REST, Routes } from "discord.js";
 import { readdirSync } from "fs";
 import { join } from "path";
+import { Command } from "./types";
 require("dotenv/config");
-const commands = [];
+const commands: Command[] = [];
 // Grab all the command files from the commands directory you created earlier
 const foldersPath = join(__dirname, "commands");
 const commandFolders = readdirSync(foldersPath);
@@ -13,7 +14,6 @@ for (const folder of commandFolders) {
     const commandFiles = readdirSync(commandsPath).filter(
         (file) => file.endsWith(".js") && file !== "helpers.js",
     );
-
     for (const file of commandFiles) {
         const filePath = join(commandsPath, file);
         const command = require(filePath);
@@ -38,7 +38,7 @@ const rest = new REST().setToken(process.env.TOKEN);
         );
 
         // The put method is used to fully refresh all commands in the guild with the current set
-        const data = await rest.put(
+        const data: any = await rest.put(
             Routes.applicationGuildCommands(
                 process.env.CLIENT_ID,
                 process.env.GUILD_ID,

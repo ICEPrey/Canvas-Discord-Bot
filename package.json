@@ -5,11 +5,10 @@
   "main": "bot.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "deploy": "node deploy-commands.js"
+    "deploy": "node ./build/deploy-commands.js"
   },
   "keywords": [],
   "author": "",
-  "type": "module",
   "license": "ISC",
   "dependencies": {
     "@supabase/supabase-js": "^2.33.1",
@@ -22,6 +21,7 @@
     "url": "^0.11.1"
   },
   "devDependencies": {
-    "eslint": "^8.48.0"
+    "eslint": "^8.48.0",
+    "supabase": "^1.88.0"
   }
 }
