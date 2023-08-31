@@ -5,7 +5,8 @@
   "main": "bot.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "deploy": "node ./build/deploy-commands.js"
+    "deploy": "node ./build/deploy-commands.js",
+    "start": "node ./build/bot.js"
   },
   "keywords": [],
   "author": "",

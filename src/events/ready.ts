@@ -1,5 +1,4 @@
 import { Client, Events, ActivityType } from "discord.js";
-
 module.exports = {
     name: Events.ClientReady,
     once: true,
