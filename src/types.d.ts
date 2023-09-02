@@ -12,7 +12,7 @@ export interface SlashCommand {
     command: SlashCommandBuilder;
     execute: (interaction: ChatInputCommandInteraction) => void;
     autocomplete?: (interaction: AutocompleteInteraction) => void;
-    cooldown?: number; // in seconds
+    cooldown?: number;
 }
 
 export interface Command {
@@ -45,6 +45,7 @@ declare global {
             SUPABASE_URL: string;
             SUPABASE_ANON: string;
             GUILD_ID: string;
+            CANVAS_DOMAIN: string;
         }
     }
 }

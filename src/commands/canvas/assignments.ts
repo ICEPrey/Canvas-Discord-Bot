@@ -62,15 +62,12 @@ async function ReadToken(user: number) {
 
 async function GetCalendar() {
     try {
-        const res = await axios.get(
-            "https://cypresscollege.instructure.com/api/v1/calendar_events?type=assignment&context_codes%5B%5D=user_107534&context_codes%5B%5D=course_26775&context_codes%5B%5D=course_27088&context_codes%5B%5D=course_27371&context_codes%5B%5D=course_26621&context_codes%5B%5D=course_27466&start_date=2023-07-30T07%3A00%3A00.000Z&end_date=2023-09-03T07%3A00%3A00.000Z&per_page=50",
-            {
-                headers: {
-                    "Authorization": `Bearer ${process.env.ACCESS}`,
-                    "Content-Type": "application/json",
-                },
+        const res = await axios.get(process.env.CANVAS_DOMAIN, {
+            headers: {
+                "Authorization": `Bearer ${process.env.ACCESS}`,
+                "Content-Type": "application/json",
             },
-        );
+        });
 
         const events = res.data;
         const assignments = events.filter(
@@ -102,7 +99,7 @@ module.exports = {
                 hour: "numeric",
                 minute: "numeric",
                 hour12: true,
-            } as const; // Use "as const" to assert the type of options
+            } as const;
 
             const formattedDueDate = dueDate.toLocaleString("en-US", options);
 
@@ -130,9 +127,7 @@ module.exports = {
                 deferUpdate: () => void;
                 customId: string;
             }) => {
-                // Check if the user ID matches the original interaction's user ID
                 if (i.user.id !== interaction.user.id) {
-                    // Acknowledge the interaction but don't do anything
                     i.reply({
                         content: "You are not authorized to use these buttons.",
                         ephemeral: true,

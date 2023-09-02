@@ -4,12 +4,10 @@ import { join } from "path";
 import { Command } from "./types";
 require("dotenv/config");
 const commands: Command[] = [];
-// Grab all the command files from the commands directory you created earlier
 const foldersPath = join(__dirname, "commands");
 const commandFolders = readdirSync(foldersPath);
 
 for (const folder of commandFolders) {
-    // Grab all the command files from the commands directory you created earlier
     const commandsPath = join(foldersPath, folder);
     const commandFiles = readdirSync(commandsPath).filter(
         (file) => file.endsWith(".js") && file !== "helpers.js",
@@ -27,17 +25,14 @@ for (const folder of commandFolders) {
     }
 }
 
-// Construct and prepare an instance of the REST module
 const rest = new REST().setToken(process.env.TOKEN);
 
-// and deploy your commands!
 (async () => {
     try {
         console.log(
             `Started refreshing ${commands.length} application (/) commands.`,
         );
 
-        // The put method is used to fully refresh all commands in the guild with the current set
         const data: any = await rest.put(
             Routes.applicationGuildCommands(
                 process.env.CLIENT_ID,
@@ -50,7 +45,6 @@ const rest = new REST().setToken(process.env.TOKEN);
             `Successfully reloaded ${data.length} application (/) commands.`,
         );
     } catch (error) {
-        // And of course, make sure you catch and log any errors!
         console.error(error);
     }
 })();
