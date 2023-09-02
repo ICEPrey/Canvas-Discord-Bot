@@ -69,6 +69,7 @@
 -   [![supabase][supabase]][supabase-url]
 -   [![nodejs][nodejs]][nodejs-url]
 -   [![discordjs][discordjs]][discordjs-url]
+-   [![typescript][typescript]][typescripturl]
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -168,3 +169,5 @@ Distributed under the MIT License. See [license] for more information.
 [canvas2]: images/canvas/canvasStep2.png
 [canvas3]: images/canvas/canvasStep3.png
 [license]: License.MD
+[typescript]: https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white
+[typescripturl]: https://www.typescriptlang.org/

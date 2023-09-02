@@ -1,3 +1,5 @@
+import { supabase } from "../../helpers/client";
+
 const { default: axios } = require("axios");
 const {
     SlashCommandBuilder,
@@ -39,6 +41,25 @@ const colors = [
 ];
 
 const randomColor = colors[Math.floor(Math.random() * colors.length)];
+
+async function ReadToken(user: number) {
+    try {
+        const { data: discordUser, error } = await supabase
+            .from("canvas")
+            .select("discord_user")
+            .match({ discord_user: user });
+
+        if (error) {
+            throw new Error("Error fetching token from the database");
+        }
+
+        return discordUser || null;
+    } catch (error) {
+        console.error("Error fetching token from the database:", error);
+        throw error;
+    }
+}
+
 async function GetCalendar() {
     try {
         const res = await axios.get(
@@ -70,6 +91,7 @@ module.exports = {
         ),
     async execute(interaction: any) {
         try {
+            await ReadToken(interaction.user.id);
             const assignments = await GetCalendar();
             let currentIndex = 0;
             const dueDate = new Date(assignments[currentIndex].start_at);

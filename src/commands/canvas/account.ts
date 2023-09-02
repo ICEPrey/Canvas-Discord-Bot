@@ -1,11 +1,10 @@
 import { supabase } from "../../helpers/client";
-const {
+import {
     SlashCommandBuilder,
     ButtonBuilder,
     ButtonStyle,
     ActionRowBuilder,
-} = require("discord.js");
-
+} from "discord.js";
 async function AcessToken(token: string, user: number) {
     try {
         const { error } = await supabase
