@@ -6,42 +6,57 @@ import {
     ComponentType,
 } from "discord.js";
 import { colors } from "../../helpers/colors";
+import { getCanvasToken } from "./account";
 
 const randomColor = colors[Math.floor(Math.random() * colors.length)];
 
-async function getUserCourses(user: number) {
+async function getUserCourses(userId: number) {
     try {
+        const canvasToken = await getCanvasToken(userId);
+        if (!canvasToken) {
+            return {
+                message:
+                    "You are not enrolled in any courses; Please enter your token with the command /account",
+                courses: [],
+            };
+        }
         const res = await axios.get(`${process.env.CANVAS_DOMAIN}courses`, {
             headers: {
-                "Authorization": `Bearer ${process.env.ACCESS}`,
+                "Authorization": `Bearer ${canvasToken}`,
                 "Content-Type": "application/json",
             },
             params: {
                 "enrollment_type": "student",
                 "enrollment_state": "active",
-                "user_id": user,
+                "user_id": userId,
             },
         });
 
         const courses = res.data;
 
-        return courses || [];
+        return {
+            message: "Courses fetched successfully",
+            courses: courses || [],
+        };
     } catch (error: any) {
         console.error(
             "Error fetching user's courses from Canvas:",
             error.message,
         );
-        return [];
+        return {
+            message: "An error occurred while fetching courses.",
+            courses: [],
+        };
     }
 }
-
-async function getAssignmentsForCourse(courseId: number) {
+async function getAssignmentsForCourse(courseId: number, userId: number) {
     try {
+        const canvasToken = await getCanvasToken(userId);
         const res = await axios.get(
             `${process.env.CANVAS_DOMAIN}courses/${courseId}/assignments`,
             {
                 headers: {
-                    "Authorization": `Bearer ${process.env.ACCESS}`,
+                    "Authorization": `Bearer ${canvasToken}`,
                     "Content-Type": "application/json",
                 },
             },
@@ -72,14 +87,16 @@ module.exports = {
         .setDescription("Display assignments for your courses"),
     async execute(interaction: any) {
         try {
-            const userCourses = await getUserCourses(interaction.user.id);
+            const userCoursesResult = await getUserCourses(interaction.user.id);
+            console.log(userCoursesResult);
+            const userCourses = userCoursesResult.courses;
+
+            await interaction.reply({
+                content: userCoursesResult.message,
+                ephemeral: true,
+            });
 
             if (userCourses.length === 0) {
-                await interaction.reply({
-                    content:
-                        "You are not enrolled in any courses; Please enter your token with the command /account",
-                    ephemeral: true,
-                });
                 return;
             }
 
@@ -112,6 +129,7 @@ module.exports = {
                     const selection = index.values[0];
                     const assignments = await getAssignmentsForCourse(
                         selection,
+                        interaction.user.id,
                     );
 
                     const assignmentList = assignments

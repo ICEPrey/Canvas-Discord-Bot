@@ -5,18 +5,13 @@ import {
     ButtonStyle,
     ActionRowBuilder,
 } from "discord.js";
-async function getCanvasToken(userId: number) {
+export async function getCanvasToken(userId: number) {
     try {
-        const { data, error } = await supabase
+        const { data } = await supabase
             .from("canvas")
             .select("token")
             .eq("discord_user", userId)
             .single();
-
-        if (error) {
-            console.error("Supabase error:", error);
-            throw new Error("Error fetching Canvas token from the database");
-        }
 
         return data ? data.token : null;
     } catch (error) {
@@ -27,15 +22,26 @@ async function getCanvasToken(userId: number) {
 
 async function AcessToken(token: string, userId: number) {
     try {
-        const { error } = await supabase
-            .from("canvas")
-            .insert({ token: token, discord_user: userId });
+        const existingToken = await getCanvasToken(userId);
+        if (existingToken) {
+            const { error } = await supabase
+                .from("canvas")
+                .update({ token: token })
+                .eq("discord_user", userId);
+            if (error) {
+                throw new Error("Error updating token in supabase.");
+            }
+        } else {
+            const { error } = await supabase
+                .from("canvas")
+                .insert({ token: token, discord_user: userId });
 
-        if (error) {
-            throw new Error("Error inserting token into the database");
+            if (error) {
+                throw new Error("Error inserting token into the database");
+            }
         }
     } catch (error) {
-        console.error("Error inserting token into the database:", error);
+        console.error("Error updating the token into the database:", error);
         throw error;
     }
 }
@@ -56,7 +62,7 @@ module.exports = {
             const userId = interaction.user.id;
             const token = interaction.options.getString("token");
             const existingToken = await getCanvasToken(userId);
-            if (existingToken) {
+            if (existingToken || null) {
                 await interaction.reply({
                     ephemeral: true,
                     content:
