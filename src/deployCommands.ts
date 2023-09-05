@@ -2,7 +2,7 @@ import { REST, Routes } from "discord.js";
 import { readdirSync } from "fs";
 import { join } from "path";
 import { Command } from "./types";
-require("dotenv/config");
+import "dotenv/config";
 const commands: Command[] = [];
 const foldersPath = join(__dirname, "commands");
 const commandFolders = readdirSync(foldersPath);
@@ -25,7 +25,7 @@ for (const folder of commandFolders) {
     }
 }
 
-const rest = new REST().setToken(process.env.TOKEN);
+const rest = new REST().setToken(process.env.TOKEN || "");
 
 (async () => {
     try {
@@ -35,8 +35,8 @@ const rest = new REST().setToken(process.env.TOKEN);
 
         const data: any = await rest.put(
             Routes.applicationGuildCommands(
-                process.env.CLIENT_ID,
-                process.env.GUILD_ID,
+                process.env.CLIENT_ID || "",
+                process.env.GUILD_ID || "",
             ),
             { body: commands },
         );

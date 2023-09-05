@@ -47,13 +47,13 @@ module.exports = {
             content: `Are you sure you want to timeout ${target.username} for reason: ${reason}?`,
             components: [row],
         });
-        const collectorFilter = (i: { user: { id: number } }) =>
-            i.user.id === interaction.user.id;
+        const collectorFilter = (index: { user: { id: number } }) =>
+            index.user.id === interaction.user.id;
 
         try {
             const confirmation = await response.awaitMessageComponent({
                 filter: collectorFilter,
-                time: 60000,
+                time: 60_000,
             });
             if (confirmation.customId === "confirm") {
                 const member = interaction.options.getMember("target");
@@ -68,9 +68,9 @@ module.exports = {
                     components: [],
                 });
             }
-        } catch (e) {
+        } catch (error) {
             await interaction.editReply({
-                content: `${e} Confirmation not received within 1 minute, cancelling`,
+                content: `${error} Confirmation not received within 1 minute, cancelling`,
                 components: [],
             });
         }

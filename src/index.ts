@@ -1,7 +1,7 @@
-import { readdirSync } from "fs";
-import { join } from "path";
+import { readdirSync } from "node:fs";
+import { join } from "node:path";
 import { Client, Collection, GatewayIntentBits } from "discord.js";
-require("dotenv/config");
+import "dotenv/config";
 
 const client: Client = new Client({ intents: [GatewayIntentBits.Guilds] });
 client.commands = new Collection();
@@ -34,9 +34,11 @@ for (const file of eventFiles) {
     const filePath = join(eventsPath, file);
     const event = require(filePath);
     if (event.once) {
-        client.once(event.name, (...args) => event.execute(...args));
+        client.once(event.name, (...arguments_) =>
+            event.execute(...arguments_),
+        );
     } else {
-        client.on(event.name, (...args) => event.execute(...args));
+        client.on(event.name, (...arguments_) => event.execute(...arguments_));
     }
 }
 

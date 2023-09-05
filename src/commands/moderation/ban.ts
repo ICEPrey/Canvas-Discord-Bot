@@ -41,13 +41,13 @@ module.exports = {
             content: `Are you sure you want to ban ${target.username} for reason: ${reason}?`,
             components: [row],
         });
-        const collectorFilter = (i: { user: { id: number } }) =>
-            i.user.id === interaction.user.id;
+        const collectorFilter = (index: { user: { id: number } }) =>
+            index.user.id === interaction.user.id;
 
         try {
             const confirmation = await response.awaitMessageComponent({
                 filter: collectorFilter,
-                time: 60000,
+                time: 60_000,
             });
             if (confirmation.customId === "confirm") {
                 await interaction.guild.members.ban(target);
@@ -61,7 +61,7 @@ module.exports = {
                     components: [],
                 });
             }
-        } catch (e) {
+        } catch {
             await interaction.editReply({
                 content:
                     "Confirmation not received within 1 minute, cancelling",

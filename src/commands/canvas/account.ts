@@ -5,11 +5,31 @@ import {
     ButtonStyle,
     ActionRowBuilder,
 } from "discord.js";
-async function AcessToken(token: string, user: number) {
+async function getCanvasToken(userId: number) {
+    try {
+        const { data, error } = await supabase
+            .from("canvas")
+            .select("token")
+            .eq("discord_user", userId)
+            .single();
+
+        if (error) {
+            console.error("Supabase error:", error);
+            throw new Error("Error fetching Canvas token from the database");
+        }
+
+        return data ? data.token : null;
+    } catch (error) {
+        console.error("Error fetching Canvas token from the database:", error);
+        throw error;
+    }
+}
+
+async function AcessToken(token: string, userId: number) {
     try {
         const { error } = await supabase
             .from("canvas")
-            .insert({ token: token, discord_user: user });
+            .insert({ token: token, discord_user: userId });
 
         if (error) {
             throw new Error("Error inserting token into the database");
@@ -33,7 +53,17 @@ module.exports = {
         .setDMPermission(false),
     async execute(interaction: any) {
         try {
+            const userId = interaction.user.id;
             const token = interaction.options.getString("token");
+            const existingToken = await getCanvasToken(userId);
+            if (existingToken) {
+                await interaction.reply({
+                    ephemeral: true,
+                    content:
+                        "You already have a Canvas token stored. If you want to update it, please contact support.",
+                });
+                return;
+            }
             const confirm = new ButtonBuilder()
                 .setCustomId("confirm")
                 .setLabel("Submit Token")
@@ -50,13 +80,13 @@ module.exports = {
                 content: `Are you sure you want to submit this token ${token} ?`,
                 components: [row],
             });
-            const collectorFilter = (i: { user: { id: number } }) =>
-                i.user.id === interaction.user.id;
+            const collectorFilter = (index: { user: { id: number } }) =>
+                index.user.id === interaction.user.id;
 
             try {
                 const confirmation = await response.awaitMessageComponent({
                     filter: collectorFilter,
-                    time: 60000,
+                    time: 60_000,
                     ephemeral: true,
                 });
                 if (confirmation.customId === "confirm") {
@@ -74,8 +104,8 @@ module.exports = {
                         components: [],
                     });
                 }
-            } catch (e) {
-                console.error("Confirmation error:", e);
+            } catch (error) {
+                console.error("Confirmation error:", error);
                 await interaction.editReply({
                     content:
                         "Confirmation not received within 1 minute, cancelling",

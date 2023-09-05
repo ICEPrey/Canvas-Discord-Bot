@@ -4,7 +4,7 @@ module.exports = {
     once: true,
     execute(client: Client) {
         console.log(`Up! Logged In As ${client?.user?.tag}`);
-        client?.user?.setActivity("Watching habibi server", {
+        client?.user?.setActivity("Your Assignments", {
             type: ActivityType.Watching,
         });
     },

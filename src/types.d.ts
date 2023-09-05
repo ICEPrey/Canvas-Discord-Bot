@@ -1,6 +1,5 @@
 import {
     SlashCommandBuilder,
-    CommandInteraction,
     Collection,
     PermissionResolvable,
     AutocompleteInteraction,
@@ -33,12 +32,12 @@ export type GuildOption = keyof GuildOptions;
 export interface BotEvent {
     name: string;
     once?: boolean | false;
-    execute: (...args) => void;
+    execute: (...arguments_) => void;
 }
 
 declare global {
     namespace NodeJS {
-        interface ProcessEnv {
+        interface ProcessEnvironment {
             TOKEN: string;
             CLIENT_ID: string;
             ACCESS: string;
