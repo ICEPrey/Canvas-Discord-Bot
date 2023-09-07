@@ -5,7 +5,7 @@ import {
     ButtonStyle,
     ActionRowBuilder,
 } from "discord.js";
-export async function getCanvasToken(userId: number) {
+async function getCanvasToken(userId: number) {
     try {
         const { data } = await supabase
             .from("canvas")
