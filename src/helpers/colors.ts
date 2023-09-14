@@ -1,4 +1,6 @@
-export const colors: any = [
+import { ColorResolvable } from "discord.js";
+
+const colors: ColorResolvable[] = [
     "Default",
     "White",
     "Aqua",
@@ -30,3 +32,4 @@ export const colors: any = [
     "DarkButNotBlack",
     "NotQuiteBlack",
 ];
+export const randomColor = colors[Math.floor(Math.random() * colors.length)];

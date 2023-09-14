@@ -4,11 +4,11 @@ import {
     ActionRowBuilder,
     StringSelectMenuBuilder,
     ComponentType,
+    EmbedBuilder,
 } from "discord.js";
-import { colors } from "../../helpers/colors";
+import { randomColor } from "../../helpers/colors";
 import { supabase } from "../../helpers/client";
 
-const randomColor = colors[Math.floor(Math.random() * colors.length)];
 async function getCanvasToken(userId: number) {
     try {
         const { data } = await supabase
@@ -151,23 +151,33 @@ module.exports = {
                 );
 
                 if (upcomingAssignments.length > 0) {
-                    const assignmentList = upcomingAssignments
-                        .map(
-                            (assignment: {
-                                due_at: string | number | Date;
-                                name: any;
-                            }) => {
-                                const dueDate = new Date(assignment.due_at);
-                                const formattedDueDate =
-                                    dueDate.toLocaleString();
-
-                                return `${assignment.name} (Due: ${formattedDueDate})`;
-                            },
+                    const embed = new EmbedBuilder()
+                        .setColor(randomColor)
+                        .setTitle("Upcoming Assignments")
+                        .setDescription("Assignments for the selected course:")
+                        .addFields(
+                            upcomingAssignments.map(
+                                (assignment: {
+                                    name: any;
+                                    due_at: string | number | Date;
+                                }) => ({
+                                    name: assignment.name,
+                                    value: `Due: ${new Date(
+                                        assignment.due_at,
+                                    ).toLocaleString()}`,
+                                }),
+                            ),
                         )
-                        .join("\n");
-
-                    await interaction.editReply({
-                        content: `Assignments for the selected course:\n${assignmentList}`,
+                        .setFooter({
+                            iconURL:
+                                "https://play-lh.googleusercontent.com/2_M-EEPXb2xTMQSTZpSUefHR3TjgOCsawM3pjVG47jI-BrHoXGhKBpdEHeLElT95060B=w240-h480-rw",
+                            text: "Canvas By Instructure",
+                        });
+                    interaction.followUp({ embeds: [embed], ephemeral: true });
+                } else {
+                    interaction.followUp({
+                        content:
+                            "There are no upcoming assignments for this course.",
                         ephemeral: true,
                     });
                 }
