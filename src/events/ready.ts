@@ -1,5 +1,6 @@
 import { Client, Events, ActivityType } from "discord.js";
 import { runCanvasCheckTimer } from "./announcements";
+import { runAssignmentChecker } from "./assignmentChecker";
 module.exports = {
     name: Events.ClientReady,
     once: true,
@@ -9,5 +10,6 @@ module.exports = {
             type: ActivityType.Watching,
         });
         runCanvasCheckTimer(client);
+        runAssignmentChecker(client);
     },
 };

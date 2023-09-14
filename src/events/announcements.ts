@@ -16,14 +16,13 @@ interface AnnouncementPost {
     postLink?: string;
 }
 
-const announcementsEndpoint = `${process.env.CANVAS_DOMAIN}announcements?context_codes[]=course_27088&access_token=${process.env.ACCESS}`;
+const announcementsEndpoint = `${process.env.CANVAS_DOMAIN}announcements?context_codes[]=course_27088`;
 export async function runCanvasCheckTimer(client: any) {
     const sentAnnouncementIds = new Set();
     try {
         const userData = await fetchUser();
         for (const user of userData) {
-            const canvasToken = user.token;
-            const announcements = await getAllAnnouncements(canvasToken);
+            const announcements = await getAllAnnouncements();
             if (announcements.length > 0) {
                 announcements.forEach(
                     (announcement: {
@@ -68,11 +67,11 @@ async function fetchUser() {
     }
 }
 
-async function getAllAnnouncements(canvasToken: string) {
+async function getAllAnnouncements() {
     try {
         const res = await axios.get(announcementsEndpoint, {
             headers: {
-                Authorization: `Bearer ${canvasToken}`,
+                Authorization: `Bearer ${process.env.ACCESS}`,
             },
         });
         return res.data;
