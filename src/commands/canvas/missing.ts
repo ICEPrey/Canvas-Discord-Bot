@@ -120,8 +120,10 @@ module.exports = {
                             "https://play-lh.googleusercontent.com/2_M-EEPXb2xTMQSTZpSUefHR3TjgOCsawM3pjVG47jI-BrHoXGhKBpdEHeLElT95060B=w240-h480-rw",
                         text: "Canvas By Instructure",
                     });
-
                 await interaction.user.send({ embeds: [embed] });
+                await interaction.reply(
+                    "Missing assignements recieved in DM's",
+                );
             }
         } catch (error) {
             console.error(
