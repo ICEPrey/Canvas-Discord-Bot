@@ -12,7 +12,7 @@ export async function runAssignmentChecker(client: any) {
         const userData = await fetchUser();
 
         for (const user of userData) {
-            const assignments = await getAllAssignments();
+            const assignments = await getAllAssignments(user.discord_user);
 
             if (assignments.length > 0) {
                 assignments.forEach((assignment: any) => {
@@ -49,9 +49,23 @@ async function fetchUser() {
         throw error;
     }
 }
-
-async function getAllAssignments() {
+async function getCanvasToken(userId: number) {
     try {
+        const { data } = await supabase
+            .from("canvas")
+            .select("token")
+            .eq("discord_user", userId)
+            .single();
+
+        return data ? data.token : null;
+    } catch (error) {
+        console.error("Error fetching Canvas token from the database:", error);
+        throw error;
+    }
+}
+async function getAllAssignments(userId: number) {
+    try {
+        const canvasToken = await getCanvasToken(userId);
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
@@ -60,7 +74,7 @@ async function getAllAssignments() {
         tomorrow.setHours(23, 59, 59, 999);
         const res = await axios.get(assignmentsEndpoint, {
             headers: {
-                Authorization: `Bearer ${process.env.ACCESS}`,
+                Authorization: `Bearer ${canvasToken}`,
             },
         });
 
@@ -89,26 +103,34 @@ async function postAssignment(userId: string, post: any, client: any) {
         post["has_submitted_submissions"] === true
             ? ":white_check_mark:"
             : ":x:";
-    try {
-        const allowedAttempts =
-            post["allowed_attempts"] === -1
-                ? "Unlimited"
-                : post["allowed_attempts"];
+    const allowedAttempts =
+        post["allowed_attempts"] === -1 || post["allowed_attempts"] === "-1"
+            ? "Unlimited"
+            : post["allowed_attempts"];
 
+    try {
         const embed = new EmbedBuilder()
             .setColor(randomColor)
             .setTitle(title)
             .setURL(url)
             .addFields(
-                { name: "Due Date", value: `${dueDate}`, inline: true },
+                { name: "Due Date", value: dueDate.toString(), inline: true },
                 {
                     name: "Allowed Attempts",
-                    value: `${allowedAttempts}`,
+                    value: allowedAttempts.toString(),
                     inline: true,
                 },
-                { name: "Total Points", value: points, inline: true },
-                { name: "Is This A Quiz", value: isQuiz, inline: true },
-                { name: "Submitted", value: isDone },
+                {
+                    name: "Total Points",
+                    value: points.toString(),
+                    inline: true,
+                },
+                {
+                    name: "Is This A Quiz",
+                    value: isQuiz.toString(),
+                    inline: true,
+                },
+                { name: "Submitted", value: isDone.toString() },
             )
             .setTimestamp()
             .setFooter({ text: "Next Canvas check in 24 hours." });

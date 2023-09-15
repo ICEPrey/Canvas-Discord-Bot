@@ -15,14 +15,28 @@ interface AnnouncementPost {
     html_url?: string;
     postLink?: string;
 }
+async function getCanvasToken(userId: number) {
+    try {
+        const { data } = await supabase
+            .from("canvas")
+            .select("token")
+            .eq("discord_user", userId)
+            .single();
 
+        return data ? data.token : null;
+    } catch (error) {
+        console.error("Error fetching Canvas token from the database:", error);
+        throw error;
+    }
+}
 const announcementsEndpoint = `${process.env.CANVAS_DOMAIN}announcements?context_codes[]=course_27088`;
 export async function runCanvasCheckTimer(client: any) {
     const sentAnnouncementIds = new Set();
     try {
         const userData = await fetchUser();
         for (const user of userData) {
-            const announcements = await getAllAnnouncements();
+            const canvasToken = await getCanvasToken(user.discord_user);
+            const announcements = await getAllAnnouncements(canvasToken);
             if (announcements.length > 0) {
                 announcements.forEach(
                     (announcement: {
@@ -67,11 +81,11 @@ async function fetchUser() {
     }
 }
 
-async function getAllAnnouncements() {
+async function getAllAnnouncements(canvasToken: string) {
     try {
         const res = await axios.get(announcementsEndpoint, {
             headers: {
-                Authorization: `Bearer ${process.env.ACCESS}`,
+                Authorization: `Bearer ${canvasToken}`,
             },
         });
         return res.data;
