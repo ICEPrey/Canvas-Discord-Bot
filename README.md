@@ -107,9 +107,11 @@ Supabase Account: Set up a Supabase account at supabase.io to utilize their data
 
 # Available Commands
 
+```js
 /account (to insert canvas token)
 /assigment (to display assignments from canvas)
 /missing (to dm you missing assignments)
+```
 
 # Canvas Instructions
 
@@ -177,3 +179,7 @@ Distributed under the MIT License. See [license] for more information.
 [license]: License.MD
 [typescript]: https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white
 [typescripturl]: https://www.typescriptlang.org/
+
+```
+
+```
