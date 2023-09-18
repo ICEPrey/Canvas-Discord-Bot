@@ -50,17 +50,17 @@
 
 ## About The Canvas Discord Bot
 
-🔔 Stay Informed: Receive instant notifications about upcoming assignments, quizzes, and important announcements directly in your Discord channels. Never miss a due date again!
+🔔 Stay Informed: Receive instant notifications about upcoming assignments, quizzes, and important announcements in your DM's. Never miss a due date again!
 
-📅 Synchronized Calendars: Sync your Canvas course calendars with your Discord server to effortlessly manage your schedule. The bot ensures that you're always aware of what's ahead.
+(Still Developing) 📅 Synchronized Calendars: Sync your Canvas course calendars with your Discord server to effortlessly manage your schedule. The bot ensures that you're always aware of what's ahead.
 
-📢 Announcement Broadcasting: Professors and instructors can easily broadcast course announcements to Discord channels, ensuring effective communication with students.
+📢 Announcement Broadcasting: Professors and instructors can easily broadcast course announcements to your DM's, ensuring effective communication with students.
 
-📋 Assignment Details: Quickly access assignment descriptions, rubrics, and attached files without leaving Discord. The bot enhances your efficiency by keeping everything within your reach.
+📋 Assignment Details: Quickly access assignment descriptions, without leaving Discord. The bot enhances your efficiency by keeping everything within your reach.
 
-📊 Grade Notifications: Receive instant updates when your grades are posted. Celebrate your successes and track your progress without constantly logging into Canvas.
+(Still Developing) 📊 Grade Notifications: Receive instant updates when your grades are posted. Celebrate your successes and track your progress without constantly logging into Canvas.
 
-🔒 Security Matters: Your privacy and data security are our top priorities. The bot operates within authorized channels and follows all relevant security protocols.
+🔒 Security Matters: Your privacy and data security is top priority. The bot operates within authorized channels and follows all relevant security protocols.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
