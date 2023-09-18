@@ -105,6 +105,12 @@ Supabase Account: Set up a Supabase account at supabase.io to utilize their data
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+# Available Commands
+
+/account (to insert canvas token)
+/assigment (to display assignments from canvas)
+/missing (to dm you missing assignments)
+
 # Canvas Instructions
 
 ## Step 1
