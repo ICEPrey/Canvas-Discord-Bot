@@ -28,7 +28,25 @@ export async function getCanvasToken(userId: number) {
         throw error;
     }
 }
-export async function AcessToken(token: string, userId: number) {
+export async function getCanvasID(userId: number) {
+    try {
+        const { data } = await supabase
+            .from("canvas")
+            .select("canvas_id")
+            .eq("discord_user", userId)
+            .single();
+
+        return data ? data.canvas_id : null;
+    } catch (error) {
+        console.error("Error fetching Canvas id from the database:", error);
+        throw error;
+    }
+}
+export async function AccessToken(
+    token: string,
+    userId: number,
+    canvasID: number,
+) {
     try {
         const existingToken = await getCanvasToken(userId);
         if (existingToken) {
@@ -40,12 +58,16 @@ export async function AcessToken(token: string, userId: number) {
                 throw new Error("Error updating token in supabase.");
             }
         } else {
-            const { error } = await supabase
-                .from("canvas")
-                .insert({ token: token, discord_user: userId });
+            const { error } = await supabase.from("canvas").insert({
+                token: token,
+                discord_user: userId,
+                canvas_id: canvasID,
+            });
 
             if (error) {
-                throw new Error("Error inserting token into the database");
+                throw new Error(
+                    "Error inserting token into the database: " + error.message,
+                );
             }
         }
     } catch (error) {

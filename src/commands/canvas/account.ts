@@ -4,8 +4,24 @@ import {
     ButtonStyle,
     ActionRowBuilder,
 } from "discord.js";
-import { AcessToken, getCanvasToken } from "../../helpers/supabase";
-
+import { AccessToken, getCanvasToken } from "../../helpers/supabase";
+import axios from "axios";
+async function getCanvasID(canvasToken: string) {
+    try {
+        const res = await axios.get(
+            `${process.env.CANVAS_DOMAIN}users/self?ns=com.trypronto.canvas-app`,
+            {
+                headers: {
+                    Authorization: `Bearer ${canvasToken}`,
+                },
+            },
+        );
+        return res.data;
+    } catch (error) {
+        console.error("Error getting canvas user id:", error.message);
+        throw error;
+    }
+}
 module.exports = {
     data: new SlashCommandBuilder()
         .setName("account")
@@ -56,7 +72,8 @@ module.exports = {
                     ephemeral: true,
                 });
                 if (confirmation.customId === "confirm") {
-                    await AcessToken(token, interaction.user.id);
+                    const canvasid = await getCanvasID(token);
+                    await AccessToken(token, interaction.user.id, canvasid.id);
                     await confirmation.update({
                         content:
                             "Token has been successfully saved to the database ",

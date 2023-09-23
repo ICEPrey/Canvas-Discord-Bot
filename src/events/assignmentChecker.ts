@@ -1,7 +1,7 @@
 import axios from "axios";
 import { EmbedBuilder } from "discord.js";
 import { randomColor } from "../helpers/colors";
-import { fetchUser, getCanvasToken } from "../helpers/supabase";
+import { fetchUser, getCanvasID, getCanvasToken } from "../helpers/supabase";
 
 export async function runAssignmentChecker(client: any) {
     const sentAssignmentIds = new Set();
@@ -32,34 +32,60 @@ export async function runAssignmentChecker(client: any) {
         }, 24 * 60 * 60 * 1000);
     }
 }
-
-async function getAllAssignments(userId: number) {
+async function getCourses(canvasToken: string, userID: number) {
     try {
-        const canvasToken = await getCanvasToken(userId);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        tomorrow.setHours(23, 59, 59, 999);
+        const canvasID = await getCanvasID(userID);
         const res = await axios.get(
-            `${process.env.CANVAS_DOMAIN}courses/27088/assignments`,
+            `${process.env.CANVAS_DOMAIN}users/${canvasID}/courses`,
             {
                 headers: {
                     Authorization: `Bearer ${canvasToken}`,
                 },
             },
         );
+        return res.data;
+    } catch (error) {
+        console.error("Error fetching courses:", error.message);
+        throw error;
+    }
+}
+async function getAllAssignments(userId: number) {
+    try {
+        const canvasToken = await getCanvasToken(userId);
+        const courses = await getCourses(canvasToken, userId);
 
-        const assignments = res.data;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
 
-        const filteredAssignments = assignments.filter((assignment: any) => {
-            const dueDate = new Date(assignment.due_at);
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        tomorrow.setHours(23, 59, 59, 999);
 
-            return dueDate >= today && dueDate <= tomorrow;
-        });
+        let allAssignments: any[] = [];
 
-        return filteredAssignments;
+        for (let course of courses) {
+            const res = await axios.get(
+                `${process.env.CANVAS_DOMAIN}courses/${course.id}/assignments`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${canvasToken}`,
+                    },
+                },
+            );
+
+            const assignments = res.data;
+
+            const filteredAssignments = assignments.filter(
+                (assignment: any) => {
+                    const dueDate = new Date(assignment.due_at);
+                    return dueDate >= today && dueDate <= tomorrow;
+                },
+            );
+
+            allAssignments = allAssignments.concat(filteredAssignments);
+        }
+
+        return allAssignments;
     } catch (error) {
         console.error("Error fetching assignments:", error.message);
         throw error;
