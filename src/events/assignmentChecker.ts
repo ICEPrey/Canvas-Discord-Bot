@@ -1,9 +1,7 @@
 import axios from "axios";
 import { EmbedBuilder } from "discord.js";
-import { supabase } from "../helpers/client";
 import { randomColor } from "../helpers/colors";
-
-const assignmentsEndpoint = `${process.env.CANVAS_DOMAIN}courses/27088/assignments`;
+import { fetchUser, getCanvasToken } from "../helpers/supabase";
 
 export async function runAssignmentChecker(client: any) {
     const sentAssignmentIds = new Set();
@@ -35,34 +33,6 @@ export async function runAssignmentChecker(client: any) {
     }
 }
 
-async function fetchUser() {
-    try {
-        const { data, error } = await supabase.from("canvas").select("*");
-
-        if (error) {
-            throw error;
-        }
-
-        return data;
-    } catch (error) {
-        console.error("Error fetching user data from the database:", error);
-        throw error;
-    }
-}
-async function getCanvasToken(userId: number) {
-    try {
-        const { data } = await supabase
-            .from("canvas")
-            .select("token")
-            .eq("discord_user", userId)
-            .single();
-
-        return data ? data.token : null;
-    } catch (error) {
-        console.error("Error fetching Canvas token from the database:", error);
-        throw error;
-    }
-}
 async function getAllAssignments(userId: number) {
     try {
         const canvasToken = await getCanvasToken(userId);
@@ -72,11 +42,14 @@ async function getAllAssignments(userId: number) {
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
         tomorrow.setHours(23, 59, 59, 999);
-        const res = await axios.get(assignmentsEndpoint, {
-            headers: {
-                Authorization: `Bearer ${canvasToken}`,
+        const res = await axios.get(
+            `${process.env.CANVAS_DOMAIN}courses/27088/assignments`,
+            {
+                headers: {
+                    Authorization: `Bearer ${canvasToken}`,
+                },
             },
-        });
+        );
 
         const assignments = res.data;
 

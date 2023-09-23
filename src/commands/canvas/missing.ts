@@ -1,23 +1,10 @@
 import axios from "axios";
 import { EmbedBuilder, SlashCommandBuilder } from "discord.js";
-import { supabase } from "../../helpers/client";
 import { randomColor } from "../../helpers/colors";
+import { getCanvasToken } from "../../helpers/supabase";
 const AUTH_HEADER = "Authorization";
 const CONTENT_TYPE_HEADER = "Content-Type";
-async function getCanvasToken(userId: number) {
-    try {
-        const { data } = await supabase
-            .from("canvas")
-            .select("token")
-            .eq("discord_user", userId)
-            .single();
 
-        return data ? data.token : null;
-    } catch (error) {
-        console.error("Error fetching Canvas token from the database:", error);
-        throw error;
-    }
-}
 async function getAllAssignments(
     userId: number,
 ): Promise<{ message: string; courses: any }> {

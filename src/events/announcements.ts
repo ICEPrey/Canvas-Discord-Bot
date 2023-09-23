@@ -1,8 +1,8 @@
 import axios from "axios";
 import { convert } from "html-to-text";
 import { EmbedBuilder } from "discord.js";
-import { supabase } from "../helpers/client";
 import { randomColor } from "../helpers/colors";
+import { fetchUser, getCanvasToken } from "../helpers/supabase";
 
 interface AnnouncementPost {
     author?: {
@@ -15,21 +15,7 @@ interface AnnouncementPost {
     html_url?: string;
     postLink?: string;
 }
-async function getCanvasToken(userId: number) {
-    try {
-        const { data } = await supabase
-            .from("canvas")
-            .select("token")
-            .eq("discord_user", userId)
-            .single();
 
-        return data ? data.token : null;
-    } catch (error) {
-        console.error("Error fetching Canvas token from the database:", error);
-        throw error;
-    }
-}
-const announcementsEndpoint = `${process.env.CANVAS_DOMAIN}announcements?context_codes[]=course_27088`;
 export async function runCanvasCheckTimer(client: any) {
     const sentAnnouncementIds = new Set();
     try {
@@ -68,26 +54,16 @@ export async function runCanvasCheckTimer(client: any) {
     }
 }
 
-async function fetchUser() {
-    try {
-        const { data, error } = await supabase.from("canvas").select("*");
-        if (error) {
-            throw error;
-        }
-        return data;
-    } catch (error) {
-        console.error("Error fetching user data from the database:", error);
-        throw error;
-    }
-}
-
 async function getAllAnnouncements(canvasToken: string) {
     try {
-        const res = await axios.get(announcementsEndpoint, {
-            headers: {
-                Authorization: `Bearer ${canvasToken}`,
+        const res = await axios.get(
+            `${process.env.CANVAS_DOMAIN}announcements?context_codes[]=course_27088`,
+            {
+                headers: {
+                    Authorization: `Bearer ${canvasToken}`,
+                },
             },
-        });
+        );
         return res.data;
     } catch (error) {
         console.error("Error fetching announcements:", error.message);

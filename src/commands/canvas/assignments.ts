@@ -7,22 +7,8 @@ import {
     EmbedBuilder,
 } from "discord.js";
 import { randomColor } from "../../helpers/colors";
-import { supabase } from "../../helpers/client";
+import { getCanvasToken } from "../../helpers/supabase";
 
-async function getCanvasToken(userId: number) {
-    try {
-        const { data } = await supabase
-            .from("canvas")
-            .select("token")
-            .eq("discord_user", userId)
-            .single();
-
-        return data ? data.token : null;
-    } catch (error) {
-        console.error("Error fetching Canvas token from the database:", error);
-        throw error;
-    }
-}
 async function getUserCourses(userId: number) {
     try {
         const canvasToken = await getCanvasToken(userId);

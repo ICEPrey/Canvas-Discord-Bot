@@ -1,50 +1,10 @@
-import { supabase } from "../../helpers/client";
 import {
     SlashCommandBuilder,
     ButtonBuilder,
     ButtonStyle,
     ActionRowBuilder,
 } from "discord.js";
-async function getCanvasToken(userId: number) {
-    try {
-        const { data } = await supabase
-            .from("canvas")
-            .select("token")
-            .eq("discord_user", userId)
-            .single();
-
-        return data ? data.token : null;
-    } catch (error) {
-        console.error("Error fetching Canvas token from the database:", error);
-        throw error;
-    }
-}
-
-async function AcessToken(token: string, userId: number) {
-    try {
-        const existingToken = await getCanvasToken(userId);
-        if (existingToken) {
-            const { error } = await supabase
-                .from("canvas")
-                .update({ token: token })
-                .eq("discord_user", userId);
-            if (error) {
-                throw new Error("Error updating token in supabase.");
-            }
-        } else {
-            const { error } = await supabase
-                .from("canvas")
-                .insert({ token: token, discord_user: userId });
-
-            if (error) {
-                throw new Error("Error inserting token into the database");
-            }
-        }
-    } catch (error) {
-        console.error("Error updating the token into the database:", error);
-        throw error;
-    }
-}
+import { AcessToken, getCanvasToken } from "../../helpers/supabase";
 
 module.exports = {
     data: new SlashCommandBuilder()
