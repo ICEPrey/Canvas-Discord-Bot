@@ -1,9 +1,9 @@
 import axios from "axios";
-import { EmbedBuilder } from "discord.js";
+import { EmbedBuilder, Client } from "discord.js";
 import { randomColor } from "../helpers/colors";
 import { fetchUser, getCanvasID, getCanvasToken } from "../helpers/supabase";
 
-export async function runAssignmentChecker(client: any) {
+export async function runAssignmentChecker(client: Client) {
     const sentAssignmentIds = new Set();
 
     try {
@@ -32,7 +32,7 @@ export async function runAssignmentChecker(client: any) {
         }, 24 * 60 * 60 * 1000);
     }
 }
-async function getCourses(canvasToken: string, userID: number) {
+async function getCourses(canvasToken: string, userID: string) {
     try {
         const canvasID = await getCanvasID(userID);
         const res = await axios.get(
@@ -49,7 +49,7 @@ async function getCourses(canvasToken: string, userID: number) {
         throw error;
     }
 }
-async function getAllAssignments(userId: number) {
+async function getAllAssignments(userId: string) {
     try {
         const canvasToken = await getCanvasToken(userId);
         const courses = await getCourses(canvasToken, userId);
@@ -92,7 +92,7 @@ async function getAllAssignments(userId: number) {
     }
 }
 
-async function postAssignment(userId: string, post: any, client: any) {
+async function postAssignment(userId: string, post: any, client: Client) {
     const title = post["name"];
     const url = post["html_url"];
     const points = post["points_possible"];

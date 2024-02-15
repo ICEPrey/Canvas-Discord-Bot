@@ -14,7 +14,7 @@ export async function fetchUser() {
         throw error;
     }
 }
-export async function getCanvasToken(userId: number) {
+export async function getCanvasToken(userId: string) {
     try {
         const { data } = await supabase
             .from("canvas")
@@ -28,7 +28,7 @@ export async function getCanvasToken(userId: number) {
         throw error;
     }
 }
-export async function getCanvasID(userId: number) {
+export async function getCanvasID(userId: string) {
     try {
         const { data } = await supabase
             .from("canvas")
@@ -44,15 +44,16 @@ export async function getCanvasID(userId: number) {
 }
 export async function AccessToken(
     token: string,
-    userId: number,
+    userId: string,
     canvasID: number,
+    selectedSchool: any,
 ) {
     try {
         const existingToken = await getCanvasToken(userId);
         if (existingToken) {
             const { error } = await supabase
                 .from("canvas")
-                .update({ token: token })
+                .update({ token: token, school: selectedSchool?.domain })
                 .eq("discord_user", userId);
             if (error) {
                 throw new Error("Error updating token in supabase.");
@@ -62,6 +63,8 @@ export async function AccessToken(
                 token: token,
                 discord_user: userId,
                 canvas_id: canvasID,
+                school: selectedSchool.name,
+                school_domain: selectedSchool.domain,
             });
 
             if (error) {

@@ -1,6 +1,6 @@
 import axios from "axios";
 import { convert } from "html-to-text";
-import { EmbedBuilder } from "discord.js";
+import { EmbedBuilder, Client } from "discord.js";
 import { randomColor } from "../helpers/colors";
 import { fetchUser, getCanvasID, getCanvasToken } from "../helpers/supabase";
 
@@ -16,7 +16,7 @@ interface AnnouncementPost {
     postLink?: string;
 }
 
-export async function runCanvasCheckTimer(client: any) {
+export async function runCanvasCheckTimer(client: Client) {
     const sentAnnouncementIds = new Set();
     try {
         const userData = await fetchUser();
@@ -56,7 +56,8 @@ export async function runCanvasCheckTimer(client: any) {
         }, 24 * 60 * 60 * 1000);
     }
 }
-async function getCourses(canvasToken: string, userID: number) {
+
+async function getCourses(canvasToken: string, userID: string) {
     try {
         const canvasID = await getCanvasID(userID);
         const res = await axios.get(
@@ -73,7 +74,8 @@ async function getCourses(canvasToken: string, userID: number) {
         throw error;
     }
 }
-async function getAllAnnouncements(canvasToken: string, userID: number) {
+
+async function getAllAnnouncements(canvasToken: string, userID: string) {
     try {
         const courses = await getCourses(canvasToken, userID);
         const today = new Date();
@@ -111,7 +113,7 @@ async function getAllAnnouncements(canvasToken: string, userID: number) {
 async function postAnnouncement(
     userId: string,
     post: AnnouncementPost,
-    client: any,
+    client: Client,
 ) {
     const title = post.title || "No Title";
     const author = post.author?.display_name || "Unknown Author";
@@ -132,7 +134,7 @@ async function postAnnouncement(
             })
             .setFooter({ text: "Next Canvas check in 24 hours." })
             .setTimestamp();
-        client.users.send(userId.toString(), { embeds: [embed] });
+        await client.users.send(userId.toString(), { embeds: [embed] });
         console.log(`Sent DM to user ${userId}`);
     } catch (error) {
         console.error(`Error sending DM to user ${userId}:`, error);

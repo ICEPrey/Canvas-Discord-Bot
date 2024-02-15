@@ -1,7 +1,9 @@
 import { Client, Events, ActivityType } from "discord.js";
+import { BotEvent } from "../types";
 import { runCanvasCheckTimer } from "./announcements";
 import { runAssignmentChecker } from "./assignmentChecker";
-module.exports = {
+
+const clientReadyEvent: BotEvent = {
     name: Events.ClientReady,
     once: true,
     execute(client: Client) {
@@ -13,3 +15,5 @@ module.exports = {
         runAssignmentChecker(client);
     },
 };
+
+export = clientReadyEvent;

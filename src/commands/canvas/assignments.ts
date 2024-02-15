@@ -5,11 +5,16 @@ import {
     StringSelectMenuBuilder,
     ComponentType,
     EmbedBuilder,
+    ActionRowData,
+    ActionRowComponent,
+    InteractionReplyOptions,
+    ChatInputCommandInteraction,
 } from "discord.js";
 import { randomColor } from "../../helpers/colors";
 import { getCanvasToken } from "../../helpers/supabase";
+import { Command } from "../../types";
 
-async function getUserCourses(userId: number) {
+async function getUserCourses(userId: string) {
     try {
         const canvasToken = await getCanvasToken(userId);
         if (!canvasToken) {
@@ -37,7 +42,7 @@ async function getUserCourses(userId: number) {
             message: "Courses fetched successfully",
             courses: courses || [],
         };
-    } catch (error: any) {
+    } catch (error) {
         console.error(
             "Error fetching user's courses from Canvas:",
             error.message,
@@ -48,7 +53,7 @@ async function getUserCourses(userId: number) {
         };
     }
 }
-async function getAssignmentsForCourse(courseId: number, userId: number) {
+async function getAssignmentsForCourse(courseId: number, userId: string) {
     try {
         const canvasToken = await getCanvasToken(userId);
         const res = await axios.get(
@@ -67,7 +72,7 @@ async function getAssignmentsForCourse(courseId: number, userId: number) {
             courseId,
         );
         return assignments || [];
-    } catch (error: any) {
+    } catch (error) {
         console.error(
             "Error fetching assignments for the course:",
             error.message,
@@ -79,49 +84,54 @@ async function getAssignmentsForCourse(courseId: number, userId: number) {
         return [];
     }
 }
+export const data = new SlashCommandBuilder()
+    .setName("assignments")
+    .setDescription("Display assignments for your courses");
+export async function execute(interaction: ChatInputCommandInteraction) {
+    try {
+        const data: Command["data"] = {
+            name: "assignments",
+            permissions: [],
+            aliases: [],
+        };
+        const userId: any = interaction.user.id;
+        const userCoursesResult = await getUserCourses(userId);
+        const userCourses = userCoursesResult.courses;
 
-module.exports = {
-    data: new SlashCommandBuilder()
-        .setName("assignments")
-        .setDescription("Display assignments for your courses"),
-    async execute(interaction: any) {
-        try {
-            const userId = interaction.user.id;
-            const userCoursesResult = await getUserCourses(userId);
-            const userCourses = userCoursesResult.courses;
-
-            if (userCourses.length === 0) {
-                await interaction.reply({
-                    content: userCoursesResult.message,
-                    ephemeral: true,
-                });
-                return;
-            }
-
-            const selectMenu = new StringSelectMenuBuilder()
-                .setCustomId("course_select")
-                .setPlaceholder("Select a course")
-                .addOptions(
-                    userCourses.map((course: any) => ({
-                        label: course.name,
-                        value: course.id.toString(),
-                    })),
-                );
-
-            const row = new ActionRowBuilder().addComponents(selectMenu);
-
+        if (userCourses.length === 0) {
             await interaction.reply({
-                content: "Please select a course:",
-                components: [row],
+                content: userCoursesResult.message,
                 ephemeral: true,
             });
+            return;
+        }
 
-            const collector =
-                interaction.channel.createMessageComponentCollector({
-                    componentType: ComponentType.StringSelect,
-                    time: 3_600_000,
-                });
+        const selectMenu = new StringSelectMenuBuilder()
+            .setCustomId("course_select")
+            .setPlaceholder("Select a course")
+            .addOptions(
+                userCourses.map((course: any) => ({
+                    label: course.name,
+                    value: course.id.toString(),
+                })),
+            );
 
+        const row = new ActionRowBuilder()
+            .addComponents(selectMenu)
+            .toJSON() as ActionRowData<ActionRowComponent>;
+
+        await interaction.reply({
+            content: "Please select a course:",
+            components: [row],
+            ephemeral: true,
+        } as InteractionReplyOptions);
+
+        const collector = interaction.channel?.createMessageComponentCollector({
+            componentType: ComponentType.StringSelect,
+            time: 60000,
+        });
+
+        if (collector) {
             collector.on("collect", async (index: { values: any[] }) => {
                 const selection = index.values[0];
                 const assignments = await getAssignmentsForCourse(
@@ -144,7 +154,7 @@ module.exports = {
                         .addFields(
                             upcomingAssignments.map(
                                 (assignment: {
-                                    name: any;
+                                    name: string;
                                     due_at: string | number | Date;
                                 }) => ({
                                     name: assignment.name,
@@ -159,7 +169,10 @@ module.exports = {
                                 "https://play-lh.googleusercontent.com/2_M-EEPXb2xTMQSTZpSUefHR3TjgOCsawM3pjVG47jI-BrHoXGhKBpdEHeLElT95060B=w240-h480-rw",
                             text: "Canvas By Instructure",
                         });
-                    interaction.followUp({ embeds: [embed], ephemeral: true });
+                    interaction.followUp({
+                        embeds: [embed],
+                        ephemeral: true,
+                    });
                 } else {
                     interaction.followUp({
                         content:
@@ -168,12 +181,15 @@ module.exports = {
                     });
                 }
             });
-        } catch (error) {
-            console.error(error);
-            await interaction.reply({
-                content: "An error occurred while fetching courses.",
-                ephemeral: true,
-            });
+        } else {
+            console.error("Interaction channel is null.");
         }
-    },
-};
+        return { data };
+    } catch (error) {
+        console.error(error);
+        await interaction.reply({
+            content: "An error occurred while fetching courses.",
+            ephemeral: true,
+        });
+    }
+}

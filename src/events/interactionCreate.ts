@@ -1,9 +1,10 @@
 import { Events } from "discord.js";
+import { BotEvent } from "../types";
 
-module.exports = {
+const clientReadyEvent: BotEvent = {
     name: Events.InteractionCreate,
-    async execute(interaction: any) {
-        if (!interaction.isChatInputCommand()) return;
+    execute: async function (interaction) {
+        if (!interaction.isCommand()) return;
 
         const command = interaction.client.commands.get(
             interaction.commandName,
@@ -24,3 +25,5 @@ module.exports = {
         }
     },
 };
+
+export = clientReadyEvent;
