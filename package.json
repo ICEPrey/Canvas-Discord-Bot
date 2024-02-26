@@ -24,7 +24,7 @@
     "@supabase/supabase-js": "^2.33.1",
     "axios": "^1.6.5",
     "discord.js": "^14.14.1",
-    "dotenv": "^16.3.1",
+    "dotenv": "^16.4.5",
     "html-to-text": "^9.0.5",
     "typescript": "^5.2.2",
     "url": "^0.11.3"
