@@ -26,7 +26,7 @@
     "discord.js": "^14.14.1",
     "dotenv": "^16.4.5",
     "html-to-text": "^9.0.5",
-    "typescript": "^5.4.4",
+    "typescript": "^5.4.5",
     "url": "^0.11.3"
   },
   "devDependencies": {
