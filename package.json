@@ -32,6 +32,6 @@
   "devDependencies": {
     "@types/html-to-text": "^9.0.1",
     "eslint": "^9.1.1",
-    "supabase": "^1.163.6"
+    "supabase": "^1.167.4"
   }
 }
