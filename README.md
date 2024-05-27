@@ -67,7 +67,7 @@
 ### Built With
 
 -   [![supabase][supabase]][supabase-url]
--   [![nodejs][nodejs]][nodejs-url]
+-   [![bun][bun]][bun-url]
 -   [![discordjs][discordjs]][discordjs-url]
 -   [![typescript][typescript]][typescripturl]
 
@@ -177,10 +177,10 @@ Distributed under the MIT License. See [license] for more information.
 [license-shield]: https://img.shields.io/github/license/othneildrew/Best-README-Template.svg?style=for-the-badge
 [license-url]: https://github.com/ICEPrey/Canvas-Discord-Bot/License.MD
 [product-screenshot]: images/screenshot.png
-[nodejs]: https://img.shields.io/badge/Node%20js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white
+[bun]: https://img.shields.io/badge/Bun-339933?style=for-the-badge&logo=bun&logoColor=white
 [supabase]: https://img.shields.io/badge/Supabase-181818?style=for-the-badge&logo=supabase&logoColor=white
 [discordjs]: https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white
-[nodejs-url]: https://nodejs.org/en
+[bun-url]: https://bun.sh/
 [supabase-url]: https://supabase.com/
 [discordjs-url]: https://discord.js.org/
 [canvas1]: images/canvas/canvasStep1.png
