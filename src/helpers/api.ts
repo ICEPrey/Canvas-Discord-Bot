@@ -4,7 +4,10 @@ import { getCanvasToken } from "./supabase";
 interface FetchDataResponse {
     data: any;
 }
-
+export interface MissingAssignmentResponse {
+    message: string;
+    courses: any[];
+}
 export async function fetchData(
     url: string,
     token: string,
@@ -117,5 +120,52 @@ export async function fetchAssignments(
             );
         }
         return [];
+    }
+}
+
+export async function getAllAssignments(
+    userId: string,
+): Promise<MissingAssignmentResponse> {
+    try {
+        const canvasToken = await getCanvasToken(userId);
+        if (!canvasToken) {
+            return {
+                message:
+                    "You are not enrolled in any courses; Please enter your token with the command /account",
+                courses: [],
+            };
+        }
+
+        const headers = {
+            Authorization: `Bearer ${canvasToken}`,
+            "Content-Type": "application/json",
+        };
+
+        const params = {
+            enrollment_type: "student",
+            enrollment_state: "active",
+            user_id: userId,
+        };
+
+        const res = await axios.get(
+            `${process.env.CANVAS_DOMAIN}users/self/missing_submissions?include[]=planner_overrides&filter[]=current_grading_period&filter[]=submittable`,
+            { headers, params },
+        );
+
+        const courses = res.data;
+
+        return {
+            message: "Missing Courses fetched successfully",
+            courses: courses || [],
+        };
+    } catch (error) {
+        console.error(
+            "Error fetching user's missing courses from Canvas:",
+            error.message,
+        );
+        return {
+            message: "An error occurred while fetching courses.",
+            courses: [],
+        };
     }
 }
