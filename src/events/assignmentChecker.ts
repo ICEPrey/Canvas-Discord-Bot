@@ -52,11 +52,13 @@ async function getCourses(canvasToken: string, userID: string) {
 async function getAllAssignments(userId: string) {
     try {
         const canvasToken = await getCanvasToken(userId);
+        if (!canvasToken) {
+            throw new Error("Canvas token is null or undefined.");
+        }
         const courses = await getCourses(canvasToken, userId);
 
         const today = new Date();
         today.setHours(0, 0, 0, 0);
-
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
         tomorrow.setHours(23, 59, 59, 999);

@@ -21,29 +21,33 @@ export async function runCanvasCheckTimer(client: Client) {
     try {
         const userData = await fetchUser();
         for (const user of userData) {
-            const canvasToken = await getCanvasToken(user.discord_user);
-            const announcements = await getAllAnnouncements(
-                canvasToken,
-                user.discord_user,
-            );
-            if (announcements.length > 0) {
-                announcements.forEach(
-                    (announcement: {
-                        id: string;
-                        title: string;
-                        user_display_name: string;
-                        message: string;
-                    }) => {
-                        if (!sentAnnouncementIds.has(announcement.id)) {
-                            postAnnouncement(
-                                user.discord_user,
-                                announcement,
-                                client,
-                            );
-                            sentAnnouncementIds.add(announcement.id);
-                        }
-                    },
-                );
+            if (user.discord_user) {
+                const canvasToken = await getCanvasToken(user.discord_user);
+                if (canvasToken) {
+                    const announcements = await getAllAnnouncements(
+                        canvasToken,
+                        user.discord_user,
+                    );
+                    if (announcements.length > 0) {
+                        announcements.forEach(
+                            (announcement: {
+                                id: string;
+                                title: string;
+                                user_display_name: string;
+                                message: string;
+                            }) => {
+                                if (!sentAnnouncementIds.has(announcement.id)) {
+                                    postAnnouncement(
+                                        user.discord_user,
+                                        announcement,
+                                        client,
+                                    );
+                                    sentAnnouncementIds.add(announcement.id);
+                                }
+                            },
+                        );
+                    }
+                }
             }
         }
         console.log("Canvas announcements checked successfully.");

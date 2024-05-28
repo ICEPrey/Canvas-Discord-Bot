@@ -1,6 +1,6 @@
 import { supabase } from "./client";
 
-export async function fetchUser() {
+export async function fetchUser(): Promise<any[]> {
     try {
         const { data, error } = await supabase.from("canvas").select("*");
 
@@ -9,52 +9,69 @@ export async function fetchUser() {
         }
 
         return data;
-    } catch (error) {
+    } catch (error: any) {
         console.error("Error fetching user data from the database:", error);
         throw error;
     }
 }
-export async function getCanvasToken(userId: string) {
+
+export async function getCanvasToken(userId: string): Promise<string | null> {
     try {
-        const { data } = await supabase
+        const { data, error } = await supabase
             .from("canvas")
             .select("token")
-            .eq("discord_user", userId)
-            .single();
+            .eq("discord_user", userId);
 
-        return data ? data.token : null;
-    } catch (error) {
+        if (error) {
+            throw error;
+        }
+
+        if (data.length === 0) {
+            return null;
+        } else if (data.length > 1) {
+            throw new Error("Multiple rows returned for the Canvas token");
+        }
+
+        return data[0].token;
+    } catch (error: any) {
         console.error("Error fetching Canvas token from the database:", error);
         throw error;
     }
 }
-export async function getCanvasID(userId: string) {
+
+export async function getCanvasID(userId: string): Promise<string | null> {
     try {
-        const { data } = await supabase
+        const { data, error } = await supabase
             .from("canvas")
             .select("canvas_id")
             .eq("discord_user", userId)
             .single();
 
+        if (error) {
+            throw error;
+        }
+
         return data ? data.canvas_id : null;
-    } catch (error) {
+    } catch (error: any) {
         console.error("Error fetching Canvas id from the database:", error);
         throw error;
     }
 }
+
 export async function AccessToken(
     token: string,
     userId: string,
     canvasID: number,
-    selectedSchool: any,
-) {
+    selectedSchool: { name: string; domain: string },
+): Promise<void> {
     try {
         const existingToken = await getCanvasToken(userId);
         if (existingToken) {
             const { error } = await supabase
                 .from("canvas")
-                .update({ token: token, school: selectedSchool?.domain })
+                .update({ token: token, school: selectedSchool.domain })
                 .eq("discord_user", userId);
+
             if (error) {
                 throw new Error("Error updating token in supabase.");
             }
@@ -73,7 +90,7 @@ export async function AccessToken(
                 );
             }
         }
-    } catch (error) {
+    } catch (error: any) {
         console.error("Error updating the token into the database:", error);
         throw error;
     }
