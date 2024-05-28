@@ -116,13 +116,11 @@ export async function execute(interaction: ChatInputCommandInteraction) {
                 })),
             );
 
-        const row = new ActionRowBuilder()
-            .addComponents(selectMenu)
-            .toJSON() as ActionRowData<ActionRowComponent>;
+        const row = new ActionRowBuilder().addComponents(selectMenu);
 
         await interaction.reply({
             content: "Please select a course:",
-            components: [row],
+            components: [row.toJSON()],
             ephemeral: true,
         } as InteractionReplyOptions);
 

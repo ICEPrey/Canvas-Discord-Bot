@@ -1,33 +1,37 @@
 import { REST, Routes } from "discord.js";
-import { readdirSync } from "fs";
-import { join } from "path";
+import { readdir } from "fs/promises";
+import { join } from "path/posix";
 import { Command } from "./types";
 import "dotenv/config";
+
 const commands: Command[] = [];
 const foldersPath = join(__dirname, "commands");
-const commandFolders = readdirSync(foldersPath);
 
-for (const folder of commandFolders) {
-    const commandsPath = join(foldersPath, folder);
-    const commandFiles = readdirSync(commandsPath).filter(
-        (file) => file.endsWith(".js") && file !== "helpers.js",
-    );
-    for (const file of commandFiles) {
-        const filePath = join(commandsPath, file);
-        const command = require(filePath);
-        if ("data" in command && "execute" in command) {
-            commands.push(command.data.toJSON());
-        } else {
-            console.log(
-                `[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`,
-            );
+async function loadCommands() {
+    const commandFolders = await readdir(foldersPath);
+
+    for (const folder of commandFolders) {
+        const commandsPath = join(foldersPath, folder);
+        const commandFiles = (await readdir(commandsPath)).filter(
+            (file) => file.endsWith(".js") && file !== "helpers.js",
+        );
+
+        for (const file of commandFiles) {
+            const filePath = join(commandsPath, file);
+            const command = await import(filePath);
+
+            if ("data" in command && "execute" in command) {
+                commands.push(command.data.toJSON());
+            } else {
+                console.log(
+                    `[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`,
+                );
+            }
         }
     }
-}
 
-const rest = new REST().setToken(process.env.TOKEN || "");
+    const rest = new REST().setToken(process.env.TOKEN || "");
 
-(async () => {
     try {
         console.log(
             `Started refreshing ${commands.length} application (/) commands.`,
@@ -47,4 +51,9 @@ const rest = new REST().setToken(process.env.TOKEN || "");
     } catch (error) {
         console.error(error);
     }
-})();
+}
+
+loadCommands().catch((error) => {
+    console.error("Error loading commands:", error);
+    process.exit(1);
+});
