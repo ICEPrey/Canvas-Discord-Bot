@@ -87,9 +87,9 @@ Supabase Account: Set up a Supabase account at supabase.io to utilize their data
 
 ### Prerequisites
 
--   npm
+-   bun
     ```sh
-    npm install npm@latest -g
+    bun add bun@latest -g
     ```
 
 ### Installation
@@ -100,18 +100,18 @@ Supabase Account: Set up a Supabase account at supabase.io to utilize their data
     ```
 2. Install NPM packages
     ```sh
-    npm install
+    bun install
     ```
 
 ### Start the project
 
 1.  Compile the project
     ```sh
-    npm run watch
+    bun run watch
     ```
 2.  Run the project
     ```sh
-    npm run start
+    bun run start
     ```
     <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
