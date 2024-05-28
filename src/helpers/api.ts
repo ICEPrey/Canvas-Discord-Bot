@@ -253,3 +253,43 @@ export async function getAllAnnouncements(
         throw new Error("Error fetching all announcements.");
     }
 }
+
+export async function fetchAssignmentChecker(userId: string): Promise<any[]> {
+    const canvasToken = await getCanvasToken(userId);
+    if (!canvasToken) {
+        throw new Error("Canvas token is null or undefined.");
+    }
+    const courses = await getCourses(canvasToken, userId);
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(23, 59, 59, 999);
+
+    let allAssignments: any[] = [];
+
+    await Promise.all(
+        courses.map(async (course) => {
+            const { data: assignments } = await axios.get(
+                `${process.env.CANVAS_DOMAIN}courses/${course.id}/assignments`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${canvasToken}`,
+                    },
+                },
+            );
+
+            const filteredAssignments = assignments.filter(
+                (assignment: any) => {
+                    const dueDate = new Date(assignment.due_at);
+                    return dueDate >= today && dueDate <= tomorrow;
+                },
+            );
+
+            allAssignments = allAssignments.concat(filteredAssignments);
+        }),
+    );
+
+    return allAssignments;
+}

@@ -1,48 +1,9 @@
 import { convert } from "html-to-text";
 import { EmbedBuilder, Client } from "discord.js";
 import { randomColor } from "../helpers/colors";
-import { fetchUser, getCanvasToken } from "../helpers/supabase";
-import { AnnouncementPost, getAllAnnouncements } from "../helpers/api";
+import { AnnouncementPost } from "../helpers/api";
 
-export async function runCanvasCheckTimer(client: Client) {
-    const sentAnnouncementIds = new Set<string>();
-    try {
-        const userData = await fetchUser();
-        for (const user of userData) {
-            if (!user.discord_user) continue;
-
-            const canvasToken = await getCanvasToken(user.discord_user);
-            if (!canvasToken) continue;
-
-            const announcements = await getAllAnnouncements(
-                canvasToken,
-                user.discord_user,
-            );
-            announcements.forEach((announcement) => {
-                if (
-                    announcement.postLink &&
-                    sentAnnouncementIds.has(announcement.postLink)
-                )
-                    return;
-
-                if (announcement.postLink) {
-                    postAnnouncement(user.discord_user, announcement, client);
-                    sentAnnouncementIds.add(announcement.postLink);
-                }
-            });
-        }
-        console.log("Canvas announcements checked successfully.");
-    } catch (error) {
-        console.error("Error fetching and posting announcements:", error);
-    } finally {
-        setTimeout(() => {
-            runCanvasCheckTimer(client);
-            console.log("Next Canvas check in 24 hours.");
-        }, 24 * 60 * 60 * 1000);
-    }
-}
-
-async function postAnnouncement(
+export async function postAnnouncement(
     userId: string,
     post: AnnouncementPost,
     client: Client,
