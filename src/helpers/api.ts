@@ -1,13 +1,32 @@
 import axios, { AxiosError } from "axios";
-import { getCanvasToken } from "./supabase";
+import { getCanvasID, getCanvasToken } from "./supabase";
 
 interface FetchDataResponse {
     data: any;
 }
+
+interface CourseResponse {
+    message: string;
+    courses: any[];
+}
+
+export interface AnnouncementPost {
+    author?: {
+        display_name?: string;
+        avatar_image_url?: string;
+        html_url?: string;
+    };
+    message?: string;
+    title?: string;
+    html_url?: string;
+    postLink?: string;
+}
+
 export interface MissingAssignmentResponse {
     message: string;
     courses: any[];
 }
+
 export async function fetchData(
     url: string,
     token: string,
@@ -33,11 +52,6 @@ export async function fetchData(
         }
         throw error;
     }
-}
-
-interface CourseResponse {
-    message: string;
-    courses: any[];
 }
 
 export async function fetchCourses(userId: string): Promise<CourseResponse> {
@@ -167,5 +181,75 @@ export async function getAllAssignments(
             message: "An error occurred while fetching courses.",
             courses: [],
         };
+    }
+}
+
+export async function getCourses(
+    canvasToken: string,
+    userID: string,
+): Promise<any[]> {
+    try {
+        const canvasID = await getCanvasID(userID);
+        const response = await axios.get(
+            `${process.env.CANVAS_DOMAIN}users/${canvasID}/courses`,
+            {
+                headers: {
+                    Authorization: `Bearer ${canvasToken}`,
+                },
+            },
+        );
+        return response.data;
+    } catch (error) {
+        console.error("Failed to fetch courses:", error);
+        throw new Error("Error fetching courses.");
+    }
+}
+
+export async function getAllAnnouncements(
+    canvasToken: string,
+    userID: string,
+): Promise<AnnouncementPost[]> {
+    try {
+        const courses = await getCourses(canvasToken, userID);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        let allAnnouncements: AnnouncementPost[] = [];
+
+        for (let course of courses) {
+            try {
+                const response = await axios.get(
+                    `${process.env.CANVAS_DOMAIN}announcements?context_codes[]=course_${course.id}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${canvasToken}`,
+                        },
+                    },
+                );
+
+                const filteredAnnouncements = response.data.filter(
+                    (announcement: any) => {
+                        const announcementDate = new Date(
+                            announcement.posted_at,
+                        );
+                        return announcementDate >= today;
+                    },
+                );
+
+                allAnnouncements = allAnnouncements.concat(
+                    filteredAnnouncements,
+                );
+            } catch (error) {
+                console.error(
+                    `Failed to fetch announcements for course ${course.id}:`,
+                    error,
+                );
+            }
+        }
+
+        return allAnnouncements;
+    } catch (error) {
+        console.error("Failed to fetch all announcements:", error);
+        throw new Error("Error fetching all announcements.");
     }
 }

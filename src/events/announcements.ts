@@ -1,54 +1,35 @@
-import axios from "axios";
 import { convert } from "html-to-text";
 import { EmbedBuilder, Client } from "discord.js";
 import { randomColor } from "../helpers/colors";
-import { fetchUser, getCanvasID, getCanvasToken } from "../helpers/supabase";
-
-interface AnnouncementPost {
-    author?: {
-        display_name?: string;
-        avatar_image_url?: string;
-        html_url?: string;
-    };
-    message?: string;
-    title?: string;
-    html_url?: string;
-    postLink?: string;
-}
+import { fetchUser, getCanvasToken } from "../helpers/supabase";
+import { AnnouncementPost, getAllAnnouncements } from "../helpers/api";
 
 export async function runCanvasCheckTimer(client: Client) {
-    const sentAnnouncementIds = new Set();
+    const sentAnnouncementIds = new Set<string>();
     try {
         const userData = await fetchUser();
         for (const user of userData) {
-            if (user.discord_user) {
-                const canvasToken = await getCanvasToken(user.discord_user);
-                if (canvasToken) {
-                    const announcements = await getAllAnnouncements(
-                        canvasToken,
-                        user.discord_user,
-                    );
-                    if (announcements.length > 0) {
-                        announcements.forEach(
-                            (announcement: {
-                                id: string;
-                                title: string;
-                                user_display_name: string;
-                                message: string;
-                            }) => {
-                                if (!sentAnnouncementIds.has(announcement.id)) {
-                                    postAnnouncement(
-                                        user.discord_user,
-                                        announcement,
-                                        client,
-                                    );
-                                    sentAnnouncementIds.add(announcement.id);
-                                }
-                            },
-                        );
-                    }
+            if (!user.discord_user) continue;
+
+            const canvasToken = await getCanvasToken(user.discord_user);
+            if (!canvasToken) continue;
+
+            const announcements = await getAllAnnouncements(
+                canvasToken,
+                user.discord_user,
+            );
+            announcements.forEach((announcement) => {
+                if (
+                    announcement.postLink &&
+                    sentAnnouncementIds.has(announcement.postLink)
+                )
+                    return;
+
+                if (announcement.postLink) {
+                    postAnnouncement(user.discord_user, announcement, client);
+                    sentAnnouncementIds.add(announcement.postLink);
                 }
-            }
+            });
         }
         console.log("Canvas announcements checked successfully.");
     } catch (error) {
@@ -58,59 +39,6 @@ export async function runCanvasCheckTimer(client: Client) {
             runCanvasCheckTimer(client);
             console.log("Next Canvas check in 24 hours.");
         }, 24 * 60 * 60 * 1000);
-    }
-}
-
-async function getCourses(canvasToken: string, userID: string) {
-    try {
-        const canvasID = await getCanvasID(userID);
-        const res = await axios.get(
-            `${process.env.CANVAS_DOMAIN}users/${canvasID}/courses`,
-            {
-                headers: {
-                    Authorization: `Bearer ${canvasToken}`,
-                },
-            },
-        );
-        return res.data;
-    } catch (error) {
-        console.error("Error fetching courses:", error.message);
-        throw error;
-    }
-}
-
-async function getAllAnnouncements(canvasToken: string, userID: string) {
-    try {
-        const courses = await getCourses(canvasToken, userID);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
-        let allAnnouncements: any[] = [];
-
-        for (let course of courses) {
-            const res = await axios.get(
-                `${process.env.CANVAS_DOMAIN}announcements?context_codes[]=course_${course.id}`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${canvasToken}`,
-                    },
-                },
-            );
-
-            const filteredAnnouncements = res.data.filter(
-                (announcement: any) => {
-                    const announcementDate = new Date(announcement.posted_at);
-                    return announcementDate >= today;
-                },
-            );
-
-            allAnnouncements = allAnnouncements.concat(filteredAnnouncements);
-        }
-
-        return allAnnouncements;
-    } catch (error) {
-        console.error("Error fetching announcements:", error.message);
-        throw error;
     }
 }
 
