@@ -1,7 +1,7 @@
 import { convert } from "html-to-text";
 import { EmbedBuilder, Client } from "discord.js";
 import { randomColor } from "../helpers/colors";
-import { AnnouncementPost } from "../helpers/api";
+import { AnnouncementPost } from "../types";
 
 export async function postAnnouncement(
     userId: string,

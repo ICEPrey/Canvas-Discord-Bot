@@ -4,11 +4,8 @@ import {
     SlashCommandBuilder,
 } from "discord.js";
 import { randomColor } from "../../helpers/colors";
-import { Command } from "../../types";
-import {
-    getAllAssignments,
-    MissingAssignmentResponse,
-} from "../../helpers/api";
+import { Command, MissingAssignmentResponse } from "../../types";
+import { getAllAssignments } from "../../helpers/api";
 
 export const data = new SlashCommandBuilder()
     .setName("missing")
