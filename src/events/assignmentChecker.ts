@@ -111,7 +111,7 @@ async function postAssignment(userId: string, post: any, client: Client) {
 
     try {
         const embed = new EmbedBuilder()
-            .setColor(randomColor)
+            .setColor(randomColor())
             .setTitle(title)
             .setURL(url)
             .addFields(

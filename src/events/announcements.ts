@@ -127,7 +127,7 @@ async function postAnnouncement(
     const postLink = post.html_url || "";
     try {
         const embed = new EmbedBuilder()
-            .setColor(randomColor)
+            .setColor(randomColor())
             .setTitle(title)
             .setDescription(`${message}`)
             .setURL(postLink)

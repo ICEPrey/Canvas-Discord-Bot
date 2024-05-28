@@ -96,7 +96,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
                 post["is_quiz_assignment"] === true ? "**Yes**" : "**No**";
 
             const embed = new EmbedBuilder()
-                .setColor(randomColor)
+                .setColor(randomColor())
                 .setTitle(title)
                 .setURL(url)
                 .addFields(

@@ -32,4 +32,6 @@ const colors: ColorResolvable[] = [
     "DarkButNotBlack",
     "NotQuiteBlack",
 ];
-export const randomColor = colors[Math.floor(Math.random() * colors.length)];
+export const randomColor = (): ColorResolvable => {
+    return colors[Math.floor(Math.random() * colors.length)];
+};
