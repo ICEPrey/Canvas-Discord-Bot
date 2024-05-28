@@ -1,31 +1,11 @@
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import { getCanvasID, getCanvasToken } from "./supabase";
-
-interface FetchDataResponse {
-    data: any;
-}
-
-interface CourseResponse {
-    message: string;
-    courses: any[];
-}
-
-export interface AnnouncementPost {
-    author?: {
-        display_name?: string;
-        avatar_image_url?: string;
-        html_url?: string;
-    };
-    message?: string;
-    title?: string;
-    html_url?: string;
-    postLink?: string;
-}
-
-export interface MissingAssignmentResponse {
-    message: string;
-    courses: any[];
-}
+import {
+    FetchDataResponse,
+    CourseResponse,
+    MissingAssignmentResponse,
+    AnnouncementPost,
+} from "../types";
 
 export async function fetchData(
     url: string,

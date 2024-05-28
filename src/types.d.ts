@@ -56,3 +56,29 @@ declare module "discord.js" {
         cooldowns: Collection<string, number>;
     }
 }
+
+export interface FetchDataResponse {
+    data: any;
+}
+
+export interface CourseResponse {
+    message: string;
+    courses: any[];
+}
+
+export interface AnnouncementPost {
+    author?: {
+        display_name?: string;
+        avatar_image_url?: string;
+        html_url?: string;
+    };
+    message?: string;
+    title?: string;
+    html_url?: string;
+    postLink?: string;
+}
+
+export interface MissingAssignmentResponse {
+    message: string;
+    courses: any[];
+}
