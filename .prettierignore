@@ -1,0 +1,34 @@
+# Node modules
+node_modules
+
+# Next.js build output
+.next
+out
+dist
+
+# Yarn lock file
+yarn.lock
+bun.lockb
+
+# Configuration files
+package-lock.json
+
+# Logs
+logs
+*.log
+
+# Coverage directory used by testing tools
+coverage
+
+# Miscellaneous
+.DS_Store
+Thumbs.db
+
+# Public and static directories (if you want to keep them untouched)
+public
+static
+
+# Specific file types (optional, if you don't want Prettier to format them)
+*.min.js
+*.min.css
+*.svg

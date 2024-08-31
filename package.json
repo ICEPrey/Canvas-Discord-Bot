@@ -7,7 +7,9 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "deploy": "bun ./dist/deployCommands.js",
     "start": "bun ./dist/index.js",
-    "watch": "bunx tsc -w"
+    "watch": "bunx tsc -w",
+    "format": "bunx prettier --write .",
+    "lint": "eslint . "
   },
   "keywords": [
     "canvas",
@@ -21,6 +23,7 @@
   "author": "https://github.com/ICEPrey",
   "license": "MIT",
   "dependencies": {
+    "@eslint/migrate-config": "^1.3.0",
     "@supabase/supabase-js": "^2.43.4",
     "axios": "^1.7.6",
     "discord.js": "^14.15.3",
@@ -30,8 +33,11 @@
     "url": "^0.11.4"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.1.0",
+    "@eslint/js": "^9.9.1",
     "@types/html-to-text": "^9.0.1",
     "eslint": "^9.9.1",
+    "globals": "^15.9.0",
     "supabase": "^1.191.3"
   }
 }

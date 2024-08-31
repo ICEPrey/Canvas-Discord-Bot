@@ -66,10 +66,10 @@
 
 ### Built With
 
--   [![supabase][supabase]][supabase-url]
--   [![bun][bun]][bun-url]
--   [![discordjs][discordjs]][discordjs-url]
--   [![typescript][typescript]][typescripturl]
+- [![supabase][supabase]][supabase-url]
+- [![bun][bun]][bun-url]
+- [![discordjs][discordjs]][discordjs-url]
+- [![typescript][typescript]][typescripturl]
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -87,21 +87,21 @@ Supabase Account: Set up a Supabase account at supabase.io to utilize their data
 
 ### Prerequisites
 
--   bun
-    ```sh
-    bun add bun@latest -g
-    ```
+- bun
+  ```sh
+  bun add bun@latest -g
+  ```
 
 ### Installation
 
 1. Clone the repo
-    ```sh
-    git clone https://github.com/ICEPrey/Canvas-Discord-Bot
-    ```
+   ```sh
+   git clone https://github.com/ICEPrey/Canvas-Discord-Bot
+   ```
 2. Install NPM packages
-    ```sh
-    bun install
-    ```
+   ```sh
+   bun install
+   ```
 
 ### Start the project
 
