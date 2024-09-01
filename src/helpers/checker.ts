@@ -1,10 +1,6 @@
 import { Client } from "discord.js";
 import { fetchUser } from "../helpers/supabase";
-import { CanvasUser } from "../types";
-
-interface DataItem {
-  id: number | string;
-}
+import { CanvasUser, DataItem } from "../types";
 
 export async function runChecker<T extends DataItem>(
   client: Client,

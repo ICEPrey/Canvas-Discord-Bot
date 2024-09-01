@@ -191,10 +191,17 @@ export async function getAllAnnouncements(
           },
         );
 
-        const filteredAnnouncements = response.data.filter((announcement) => {
-          const announcementDate = new Date(announcement.posted_at || "");
-          return announcementDate >= today;
-        });
+        const filteredAnnouncements = response.data
+          .filter((announcement) => {
+            const announcementDate = new Date(announcement.posted_at || "");
+            return announcementDate >= today;
+          })
+          .map((announcement) => ({
+            ...announcement,
+            id:
+              announcement.id ||
+              `${announcement.title}-${announcement.posted_at}`,
+          }));
 
         allAnnouncements = allAnnouncements.concat(filteredAnnouncements);
       } catch (error) {

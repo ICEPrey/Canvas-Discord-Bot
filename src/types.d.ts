@@ -66,7 +66,7 @@ export interface CourseResponse {
   courses: unknown[];
 }
 
-export interface AnnouncementPost {
+export interface AnnouncementPost extends DataItem {
   author?: {
     display_name?: string;
     avatar_image_url?: string;
@@ -84,7 +84,7 @@ export interface MissingAssignmentResponse {
   courses: unknown[];
 }
 
-export interface Assignment {
+export interface Assignment extends DataItem {
   name: string;
   html_url: string;
   points_possible: number;
@@ -110,4 +110,8 @@ export interface CanvasUser {
 export interface SelectedSchool {
   name: string;
   domain: string;
+}
+
+export interface DataItem {
+  id: number | string;
 }
