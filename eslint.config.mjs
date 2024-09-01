@@ -23,7 +23,7 @@ export default [
       ecmaVersion: 2021,
       sourceType: "module", // Changed from "commonjs" to "module"
     },
-
+    files: ["**/*.{ts,mts,cts}"],
     rules: {
       "arrow-spacing": [
         "warn",
