@@ -3,7 +3,7 @@ import { BotEvent } from "../types";
 
 const clientReadyEvent: BotEvent = {
   name: Events.InteractionCreate,
-  execute: async function (interaction) {
+  execute: async function(interaction) {
     if (!interaction.isCommand()) return;
 
     const command = interaction.client.commands.get(interaction.commandName);

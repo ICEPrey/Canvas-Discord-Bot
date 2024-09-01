@@ -1,30 +1,31 @@
 import { Client } from "discord.js";
 import { fetchUser } from "../helpers/supabase";
+import { CanvasUser } from "../types";
 
-export async function runChecker(
+interface DataItem {
+  id: number | string;
+}
+
+export async function runChecker<T extends DataItem>(
   client: Client,
-  fetchData: (userId: string) => Promise<any[]>,
-  postData: (userId: string, data: any, client: Client) => Promise<void>,
+  fetchData: (userId: string) => Promise<T[]>,
+  postData: (userId: string, data: T, discordClient: Client) => Promise<void>,
   logSuccessMessage: string,
   logErrorMessage: string,
   interval: number,
 ): Promise<void> {
   const sentIds = new Set<number | string>();
-
   try {
-    const userData = await fetchUser();
-
+    const userData: CanvasUser[] = await fetchUser();
     for (const user of userData) {
       const dataItems = await fetchData(user.discord_user);
-
-      dataItems.forEach((dataItem) => {
+      for (const dataItem of dataItems) {
         if (!sentIds.has(dataItem.id)) {
-          postData(user.discord_user, dataItem, client);
+          await postData(user.discord_user, dataItem, client);
           sentIds.add(dataItem.id);
         }
-      });
+      }
     }
-
     console.log(logSuccessMessage);
   } catch (error) {
     console.error(logErrorMessage, error);
