@@ -11,12 +11,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
-      - name: Use Node.js
-        uses: actions/setup-node@v2
+      - uses: actions/checkout@v4
+      - name: Use Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          node-version: "20.x"
-      - run: npm ci
-      - run: npm run build --if-present
-      - run: npm test
-      - run: npm run lint
+          bun-version: latest
+      - run: bun install
+      - run: bun run format
+      - run: bun run lint
+      - run: bun run build --if-present
