@@ -6,7 +6,7 @@ import {
 import { readdir } from "fs/promises";
 import { join } from "path/posix";
 import { Command } from "./types";
-import "dotenv/config";
+import { CONFIG } from "./config";
 
 const commands: Command[] = [];
 const foldersPath = join(__dirname, "commands");
@@ -34,7 +34,7 @@ async function loadCommands() {
     }
   }
 
-  const rest = new REST().setToken(process.env.TOKEN || "");
+  const rest = new REST().setToken(CONFIG.TOKEN);
 
   try {
     console.log(
@@ -42,10 +42,7 @@ async function loadCommands() {
     );
 
     const data = (await rest.put(
-      Routes.applicationGuildCommands(
-        process.env.CLIENT_ID || "",
-        process.env.GUILD_ID || "",
-      ),
+      Routes.applicationGuildCommands(CONFIG.CLIENT_ID, CONFIG.GUILD_ID),
       { body: commands },
     )) as RESTPostAPIApplicationCommandsJSONBody[];
 

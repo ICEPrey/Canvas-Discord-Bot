@@ -1,7 +1,7 @@
 import { readdir } from "fs/promises";
 import { join } from "path/posix";
 import { Client, Collection, GatewayIntentBits } from "discord.js";
-import "dotenv/config";
+import { CONFIG } from "./config";
 
 async function main() {
   const client: Client = new Client({ intents: [GatewayIntentBits.Guilds] });
@@ -46,7 +46,7 @@ async function main() {
     }
   }
 
-  client.login(process.env.TOKEN);
+  client.login(CONFIG.TOKEN);
 }
 
 main().catch((error) => {

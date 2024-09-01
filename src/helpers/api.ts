@@ -6,6 +6,7 @@ import {
   Course,
   Assignment,
 } from "../types";
+import { CONFIG } from "../config";
 
 export async function fetchData<T>(
   url: string,
@@ -44,7 +45,7 @@ export async function fetchCourses(
   }
   try {
     const response = await axios.get<{ courses: Course[] }>(
-      `${process.env.CANVAS_DOMAIN}courses`,
+      `${CONFIG.CANVAS_DOMAIN}courses`,
       {
         headers: {
           Authorization: `Bearer ${canvasToken}`,
@@ -77,7 +78,7 @@ export async function fetchAssignments(
   const canvasToken = await getCanvasToken(userId);
   try {
     const response = await axios.get<Assignment[]>(
-      `${process.env.CANVAS_DOMAIN}courses/${courseId}/assignments`,
+      `${CONFIG.CANVAS_DOMAIN}courses/${courseId}/assignments`,
       {
         headers: {
           Authorization: `Bearer ${canvasToken}`,
@@ -128,7 +129,7 @@ export async function getAllAssignments(
     };
 
     const res = await axios.get<Course[]>(
-      `${process.env.CANVAS_DOMAIN}users/self/missing_submissions?include[]=planner_overrides&filter[]=current_grading_period&filter[]=submittable`,
+      `${CONFIG.CANVAS_DOMAIN}users/self/missing_submissions?include[]=planner_overrides&filter[]=current_grading_period&filter[]=submittable`,
       { headers, params },
     );
 
@@ -155,7 +156,7 @@ export async function getCourses(
   try {
     const canvasID = await getCanvasID(userID);
     const response = await axios.get<Course[]>(
-      `${process.env.CANVAS_DOMAIN}users/${canvasID}/courses`,
+      `${CONFIG.CANVAS_DOMAIN}users/${canvasID}/courses`,
       {
         headers: {
           Authorization: `Bearer ${canvasToken}`,
@@ -183,7 +184,7 @@ export async function getAllAnnouncements(
     for (const course of courses) {
       try {
         const response = await axios.get<AnnouncementPost[]>(
-          `${process.env.CANVAS_DOMAIN}announcements?context_codes[]=course_${course.id}`,
+          `${CONFIG.CANVAS_DOMAIN}announcements?context_codes[]=course_${course.id}`,
           {
             headers: {
               Authorization: `Bearer ${canvasToken}`,
@@ -239,7 +240,7 @@ export async function fetchAssignmentChecker(
   await Promise.all(
     courses.map(async (course) => {
       const { data: assignments } = await axios.get<Assignment[]>(
-        `${process.env.CANVAS_DOMAIN}courses/${course.id}/assignments`,
+        `${CONFIG.CANVAS_DOMAIN}courses/${course.id}/assignments`,
         {
           headers: {
             Authorization: `Bearer ${canvasToken}`,
