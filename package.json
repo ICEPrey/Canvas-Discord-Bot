@@ -30,7 +30,9 @@
     "dotenv": "^16.4.5",
     "html-to-text": "^9.0.5",
     "typescript": "^5.5.4",
-    "url": "^0.11.4"
+    "url": "^0.11.4",
+    "typescript-eslint": "^8.3.0"
+
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.1.0",
@@ -41,7 +43,6 @@
     "@typescript-eslint/parser": "^8.3.0",
     "eslint": "^9.9.1",
     "globals": "^15.9.0",
-    "supabase": "^1.191.3",
-    "typescript-eslint": "^8.3.0"
+    "supabase": "^1.191.3"
   }
 }
