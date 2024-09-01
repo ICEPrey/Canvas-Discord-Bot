@@ -1,4 +1,3 @@
-import axios from "axios";
 import {
   SlashCommandBuilder,
   ActionRowBuilder,
@@ -10,6 +9,7 @@ import {
 } from "discord.js";
 import { randomColor } from "../../helpers/colors";
 import { fetchAssignments, fetchCourses } from "../../helpers/api";
+import { Course } from "../../types";
 
 export const data = new SlashCommandBuilder()
   .setName("assignments")
@@ -17,8 +17,10 @@ export const data = new SlashCommandBuilder()
 
 export async function execute(interaction: ChatInputCommandInteraction) {
   const userId = interaction.user.id;
-  const { message, courses } = await fetchCourses(userId);
-
+  const { message, courses } = (await fetchCourses(userId)) as {
+    message: string;
+    courses: Course[];
+  };
   if (courses.length === 0) {
     await interaction.reply({ content: message, ephemeral: true });
     return;
@@ -28,7 +30,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     .setCustomId("course_select")
     .setPlaceholder("Select a course")
     .addOptions(
-      courses.map((course: { name: string; id: number }) => ({
+      courses.map((course: Course) => ({
         label: course.name,
         value: course.id.toString(),
       })),

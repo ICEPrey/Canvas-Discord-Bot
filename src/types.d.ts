@@ -17,8 +17,8 @@ export interface SlashCommand {
 export interface Command {
   data: {
     name: string;
-    permissions: Array<PermissionResolvable>;
-    aliases: Array<string>;
+    permissions: PermissionResolvable[];
+    aliases: string[];
     cooldown?: number;
   };
   execute: (interaction: Interaction) => void;
@@ -58,15 +58,15 @@ declare module "discord.js" {
 }
 
 export interface FetchDataResponse {
-  data: any;
+  data: unknown;
 }
 
 export interface CourseResponse {
   message: string;
-  courses: any[];
+  courses: unknown[];
 }
 
-export interface AnnouncementPost {
+export interface AnnouncementPost extends DataItem {
   author?: {
     display_name?: string;
     avatar_image_url?: string;
@@ -76,9 +76,42 @@ export interface AnnouncementPost {
   title?: string;
   html_url?: string;
   postLink?: string;
+  posted_at?: string;
 }
 
 export interface MissingAssignmentResponse {
   message: string;
-  courses: any[];
+  courses: unknown[];
+}
+
+export interface Assignment extends DataItem {
+  name: string;
+  html_url: string;
+  points_possible: number;
+  due_at: string;
+  is_quiz_assignment: boolean;
+  has_submitted_submissions: boolean;
+  allowed_attempts: number;
+}
+
+export interface Course {
+  name: string;
+  id: number;
+}
+
+export interface CanvasUser {
+  discord_user: string;
+  token: string;
+  canvas_id: number;
+  school: string;
+  school_domain: string;
+}
+
+export interface SelectedSchool {
+  name: string;
+  domain: string;
+}
+
+export interface DataItem {
+  id: number | string;
 }

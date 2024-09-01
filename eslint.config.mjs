@@ -1,7 +1,9 @@
 import globals from "globals";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
+import path from "path";
+import { fileURLToPath } from "url";
 import js from "@eslint/js";
+import tseslint from "@typescript-eslint/eslint-plugin";
+import tsParser from "@typescript-eslint/parser";
 import { FlatCompat } from "@eslint/eslintrc";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -15,16 +17,24 @@ const compat = new FlatCompat({
 export default [
   ...compat.extends("eslint:recommended"),
   {
+    ignores: ["dist/**", "node_modules/**"],
     languageOptions: {
+      parser: tsParser,
+      parserOptions: {
+        ecmaVersion: 2021,
+        sourceType: "module",
+      },
       globals: {
         ...globals.node,
       },
-
-      ecmaVersion: 2021,
-      sourceType: "module", // Changed from "commonjs" to "module"
     },
 
+    files: ["**/*.{ts,mts,cts}"],
+    plugins: {
+      "@typescript-eslint": tseslint,
+    },
     rules: {
+      // ESLint Core Rules
       "arrow-spacing": [
         "warn",
         {
@@ -32,45 +42,39 @@ export default [
           after: true,
         },
       ],
-
       "brace-style": [
         "error",
-        "stroustrup",
+        "1tbs",
         {
           allowSingleLine: true,
         },
       ],
-
       "comma-dangle": ["error", "always-multiline"],
       "comma-spacing": "error",
       "comma-style": "error",
       curly: ["error", "multi-line", "consistent"],
       "dot-location": ["error", "property"],
       "handle-callback-err": "off",
-      indent: ["error", "tab"],
+      indent: ["error", 2],
       "keyword-spacing": "error",
-
       "max-nested-callbacks": [
         "error",
         {
           max: 4,
         },
       ],
-
       "max-statements-per-line": [
         "error",
         {
           max: 2,
         },
       ],
-
       "no-console": "off",
       "no-empty-function": "error",
       "no-floating-decimal": "error",
       "no-inline-comments": "error",
       "no-lonely-if": "error",
       "no-multi-spaces": "error",
-
       "no-multiple-empty-lines": [
         "error",
         {
@@ -79,14 +83,12 @@ export default [
           maxBOF: 0,
         },
       ],
-
       "no-shadow": [
         "error",
         {
           allow: ["err", "resolve", "reject"],
         },
       ],
-
       "no-trailing-spaces": ["error"],
       "no-var": "error",
       "object-curly-spacing": ["error", "always"],
@@ -94,7 +96,6 @@ export default [
       quotes: ["error", "double"],
       semi: ["error", "always"],
       "space-before-blocks": "error",
-
       "space-before-function-paren": [
         "error",
         {
@@ -103,30 +104,20 @@ export default [
           asyncArrow: "always",
         },
       ],
-
       "space-in-parens": "error",
       "space-infix-ops": "error",
       "space-unary-ops": "error",
       "spaced-comment": "error",
       yoda: "error",
 
-      "no-unused-vars": [
-        "error",
-        {
-          argsIgnorePattern: "^_",
-        },
-      ],
-
-      "no-use-before-define": [
-        "error",
-        {
-          functions: false,
-          classes: true,
-        },
-      ],
-
+      // TypeScript-Specific Rules
       "@typescript-eslint/explicit-function-return-type": "off",
       "@typescript-eslint/no-explicit-any": "warn",
+
+      // Optional: Strict and Stylistic Rules
+      ...tseslint.configs.recommended.rules,
+      ...tseslint.configs.strict.rules,
+      ...tseslint.configs.stylistic.rules,
     },
   },
 ];

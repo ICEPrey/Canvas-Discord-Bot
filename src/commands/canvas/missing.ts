@@ -4,7 +4,7 @@ import {
   SlashCommandBuilder,
 } from "discord.js";
 import { randomColor } from "../../helpers/colors";
-import { Command, MissingAssignmentResponse } from "../../types";
+import { Assignment, Command, MissingAssignmentResponse } from "../../types";
 import { getAllAssignments } from "../../helpers/api";
 
 export const data = new SlashCommandBuilder()
@@ -14,14 +14,15 @@ export const data = new SlashCommandBuilder()
 
 export async function execute(interaction: ChatInputCommandInteraction) {
   try {
-    const data: Command["data"] = {
+    const commandData: Command["data"] = {
       name: "missing",
       permissions: [],
       aliases: [],
     };
     const userId: string = interaction.user.id;
-    const userAssignments: MissingAssignmentResponse =
-      await getAllAssignments(userId);
+    const userAssignments: MissingAssignmentResponse = await getAllAssignments(
+      userId,
+    );
 
     if (userAssignments.courses.length === 0) {
       await interaction.reply({
@@ -31,7 +32,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
       return;
     }
 
-    for (const course of userAssignments.courses) {
+    for (const course of userAssignments.courses as Assignment[]) {
       const title: string = course.name;
       const url: string = course.html_url;
       const points: number = course.points_possible;
@@ -70,7 +71,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
       await interaction.user.send({ embeds: [embed] });
     }
     await interaction.reply("Missing assignments received in DM's");
-    return { data };
+    return { data: commandData };
   } catch (error) {
     console.error(
       "An error occurred while fetching or replying to missing assignments: ",

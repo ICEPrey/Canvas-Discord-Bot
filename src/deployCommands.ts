@@ -1,4 +1,8 @@
-import { REST, Routes } from "discord.js";
+import {
+  REST,
+  RESTPostAPIApplicationCommandsJSONBody,
+  Routes,
+} from "discord.js";
 import { readdir } from "fs/promises";
 import { join } from "path/posix";
 import { Command } from "./types";
@@ -37,13 +41,13 @@ async function loadCommands() {
       `Started refreshing ${commands.length} application (/) commands.`,
     );
 
-    const data: any = await rest.put(
+    const data = (await rest.put(
       Routes.applicationGuildCommands(
         process.env.CLIENT_ID || "",
         process.env.GUILD_ID || "",
       ),
       { body: commands },
-    );
+    )) as RESTPostAPIApplicationCommandsJSONBody[];
 
     console.log(
       `Successfully reloaded ${data.length} application (/) commands.`,

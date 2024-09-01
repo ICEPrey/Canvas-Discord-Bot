@@ -1,9 +1,10 @@
 import { EmbedBuilder, Client } from "discord.js";
 import { randomColor } from "../helpers/colors";
+import { Assignment } from "../types";
 
 export async function postAssignment(
   userId: string,
-  assignment: any,
+  assignment: Assignment,
   client: Client,
 ): Promise<void> {
   const {

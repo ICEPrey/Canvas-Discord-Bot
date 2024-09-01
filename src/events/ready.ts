@@ -1,5 +1,5 @@
 import { Client, Events, ActivityType } from "discord.js";
-import { BotEvent } from "../types";
+import { AnnouncementPost, Assignment, BotEvent } from "../types";
 import { postAnnouncement } from "./announcements";
 import { runChecker } from "../helpers/checker";
 import { getCanvasToken } from "../helpers/supabase";
@@ -14,7 +14,7 @@ const clientReadyEvent: BotEvent = {
     client?.user?.setActivity("Your Assignments", {
       type: ActivityType.Watching,
     });
-    runChecker(
+    runChecker<AnnouncementPost>(
       client,
       async (userId) => {
         const token = await getCanvasToken(userId);
@@ -29,7 +29,8 @@ const clientReadyEvent: BotEvent = {
       "Error fetching and posting announcements:",
       24 * 60 * 60 * 1000,
     );
-    runChecker(
+
+    runChecker<Assignment>(
       client,
       (userId) => fetchAssignmentChecker(userId),
       postAssignment,

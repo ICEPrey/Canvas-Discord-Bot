@@ -128,7 +128,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
 
   if (confirmation?.customId === "confirm") {
     const schoolResponse = await axios.get(
-      `https://canvas.instructure.com/api/v1/accounts/search?name=long beach&per_page=5`,
+      "https://canvas.instructure.com/api/v1/accounts/search?name=long beach&per_page=5",
     );
     const schools = schoolResponse.data;
     const selectedSchool = await chooseSchool(interaction, schools);
