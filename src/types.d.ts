@@ -79,7 +79,7 @@ export interface AnnouncementPost extends DataItem {
   title?: string;
   html_url?: string;
   postLink?: string;
-  posted_at?: string | Date;
+  posted_at?: Date;
 }
 
 export interface MissingAssignmentResponse {
