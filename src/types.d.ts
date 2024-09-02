@@ -8,9 +8,11 @@ import {
 } from "discord.js";
 
 export interface SlashCommand {
-  command: SlashCommandBuilder;
-  execute: (interaction: ChatInputCommandInteraction) => void;
-  autocomplete?: (interaction: AutocompleteInteraction) => void;
+  command:
+    | SlashCommandBuilder
+    | Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">;
+  execute: (interaction: ChatInputCommandInteraction) => Promise<void>;
+  autocomplete?: (interaction: AutocompleteInteraction) => Promise<void>;
   cooldown?: number;
 }
 
@@ -21,7 +23,7 @@ export interface Command {
     aliases: string[];
     cooldown?: number;
   };
-  execute: (interaction: Interaction) => void;
+  execute: (interaction: Interaction) => Promise<void>;
 }
 
 interface GuildOptions {
@@ -29,15 +31,16 @@ interface GuildOptions {
 }
 
 export type GuildOption = keyof GuildOptions;
+
 export interface BotEvent {
   name: string;
-  once?: boolean | false;
-  execute: (...arguments_) => void;
+  once?: boolean;
+  execute: (...args) => Promise<void>;
 }
 
 declare global {
   namespace NodeJS {
-    interface ProcessEnvironment {
+    interface ProcessEnv {
       TOKEN: string;
       CLIENT_ID: string;
       ACCESS: string;
@@ -57,13 +60,13 @@ declare module "discord.js" {
   }
 }
 
-export interface FetchDataResponse {
-  data: unknown;
+export interface FetchDataResponse<T> {
+  data: T;
 }
 
 export interface CourseResponse {
   message: string;
-  courses: unknown[];
+  courses: Course[];
 }
 
 export interface AnnouncementPost extends DataItem {
@@ -81,7 +84,7 @@ export interface AnnouncementPost extends DataItem {
 
 export interface MissingAssignmentResponse {
   message: string;
-  courses: unknown[];
+  courses: Course[];
 }
 
 export interface Assignment extends DataItem {
@@ -94,9 +97,8 @@ export interface Assignment extends DataItem {
   allowed_attempts: number;
 }
 
-export interface Course {
+export interface Course extends DataItem {
   name: string;
-  id: number;
 }
 
 export interface CanvasUser {

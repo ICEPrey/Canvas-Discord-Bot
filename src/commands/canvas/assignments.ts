@@ -17,12 +17,12 @@ export const data = new SlashCommandBuilder()
 
 export async function execute(interaction: ChatInputCommandInteraction) {
   const userId = interaction.user.id;
-  const { message, courses } = (await fetchCourses(userId)) as {
-    message: string;
-    courses: Course[];
-  };
+  const courses = await fetchCourses(userId);
   if (courses.length === 0) {
-    await interaction.reply({ content: message, ephemeral: true });
+    await interaction.reply({
+      content: "You have no courses.",
+      ephemeral: true,
+    });
     return;
   }
 
@@ -51,8 +51,11 @@ export async function execute(interaction: ChatInputCommandInteraction) {
 
   collector?.on("collect", async (i) => {
     const courseId = i.values[0];
-    const assignments = await fetchAssignments(parseInt(courseId), userId);
-    const upcomingAssignments = assignments.filter(
+    const assignmentsResponse = await fetchAssignments(
+      parseInt(courseId),
+      userId,
+    );
+    const upcomingAssignments = assignmentsResponse.assignments.filter(
       (assignment: { due_at: string }) =>
         new Date(assignment.due_at) > new Date(),
     );

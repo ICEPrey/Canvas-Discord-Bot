@@ -9,7 +9,7 @@ import { postAssignment } from "./assignmentChecker";
 const clientReadyEvent: BotEvent = {
   name: Events.ClientReady,
   once: true,
-  execute(client: Client) {
+  async execute(client: Client) {
     console.log(`Up! Logged In As ${client?.user?.tag}`);
     client?.user?.setActivity("Your Assignments", {
       type: ActivityType.Watching,
@@ -19,7 +19,7 @@ const clientReadyEvent: BotEvent = {
       async (userId) => {
         const token = await getCanvasToken(userId);
         if (token) {
-          return getAllAnnouncements(token, userId);
+          return getAllAnnouncements(userId);
         } else {
           throw new Error("Failed to retrieve Canvas token.");
         }

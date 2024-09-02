@@ -1,169 +1,111 @@
-import axios from "axios";
+import axios, { AxiosRequestConfig } from "axios";
 import { getCanvasID, getCanvasToken } from "./supabase";
-import {
-  MissingAssignmentResponse,
-  AnnouncementPost,
-  Course,
-  Assignment,
-} from "../types";
+import { AnnouncementPost, Course, Assignment } from "../types";
 import { CONFIG } from "../config";
 
 export async function fetchData<T>(
-  url: string,
-  token: string,
-  params: Record<string, unknown> = {},
+  userId: string,
+  endpoint: string,
+  params: Record<string, string | number | boolean | undefined> = {},
+  config: AxiosRequestConfig = {},
 ): Promise<T> {
   try {
-    const response = await axios.get<T>(url, {
+    const canvasToken = await getCanvasToken(userId);
+    if (!canvasToken) {
+      throw new Error("Canvas token is not found.");
+    }
+    const response = await axios.get<T>(`${CONFIG.CANVAS_DOMAIN}${endpoint}`, {
+      timeout: 10000,
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${canvasToken}`,
         "Content-Type": "application/json",
       },
       params,
+      ...config,
     });
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      console.error(`Axios error fetching data from ${url}:`, error.message);
+      console.error(
+        `Axios error fetching data from ${endpoint}:`,
+        error.message,
+      );
     } else {
-      console.error(`Unexpected error fetching data from ${url}:`, error);
+      console.error(`Unexpected error fetching data from ${endpoint}:`, error);
     }
     throw error;
   }
 }
 
-export async function fetchCourses(
-  userId: string,
-): Promise<{ message: string; courses: Course[] }> {
-  const canvasToken = await getCanvasToken(userId);
-  if (!canvasToken) {
-    return {
-      message:
-        "You are not enrolled in any courses; Please enter your token with the command /account",
-      courses: [],
-    };
-  }
+export async function fetchCourses(userId: string) {
   try {
-    const response = await axios.get<{ courses: Course[] }>(
-      `${CONFIG.CANVAS_DOMAIN}courses`,
+    const canvasID = await getCanvasID(userId);
+    const courses = await fetchData<Course[]>(
+      userId,
+      `users/${canvasID}/courses`,
       {
-        headers: {
-          Authorization: `Bearer ${canvasToken}`,
-          "Content-Type": "application/json",
-        },
-        params: {
-          enrollment_type: "student",
-          enrollment_state: "active",
-          user_id: userId,
-        },
+        enrollment_type: "student",
+        enrollment_state: "active",
       },
     );
-    return {
-      message: "Courses fetched successfully",
-      courses: response.data.courses || [],
-    };
+    return courses;
   } catch (error) {
-    console.error("Error fetching courses:", error);
-    return {
-      message: "An error occurred while fetching courses.",
-      courses: [],
-    };
+    console.error("Failed to fetch courses:", error);
+    throw new Error("Error fetching courses.");
   }
 }
 
 export async function fetchAssignments(
   courseId: number,
   userId: string,
-): Promise<Assignment[]> {
-  const canvasToken = await getCanvasToken(userId);
+): Promise<{ message: string; assignments: Assignment[] }> {
   try {
-    const response = await axios.get<Assignment[]>(
-      `${CONFIG.CANVAS_DOMAIN}courses/${courseId}/assignments`,
-      {
-        headers: {
-          Authorization: `Bearer ${canvasToken}`,
-          "Content-Type": "application/json",
-        },
-      },
+    const assignments = await fetchData<Assignment[]>(
+      userId,
+      `courses/${courseId}/assignments`,
     );
-    console.log("Assignments fetched successfully for course ID:", courseId);
-    return response.data || [];
+    return {
+      message: "Assignments fetched successfully",
+      assignments: assignments,
+    };
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      console.error(
-        "Axios error fetching assignments for the course:",
-        error.message,
-      );
-    } else {
-      console.error(
-        "Unexpected error fetching assignments for the course:",
-        error,
-      );
-    }
-    return [];
+    console.error(`Error fetching assignments for course ${courseId}:`, error);
+    return {
+      message: "Failed to fetch assignments",
+      assignments: [],
+    };
   }
 }
 
 export async function getAllAssignments(
   userId: string,
-): Promise<MissingAssignmentResponse> {
+): Promise<{ message: string; courses: Course[] }> {
   try {
-    const canvasToken = await getCanvasToken(userId);
-    if (!canvasToken) {
-      return {
-        message:
-          "You are not enrolled in any courses; Please enter your token with the command /account",
-        courses: [],
-      };
-    }
-
-    const headers = {
-      Authorization: `Bearer ${canvasToken}`,
-      "Content-Type": "application/json",
-    };
-
-    const params = {
-      enrollment_type: "student",
-      enrollment_state: "active",
-      user_id: userId,
-    };
-
-    const res = await axios.get<Course[]>(
-      `${CONFIG.CANVAS_DOMAIN}users/self/missing_submissions?include[]=planner_overrides&filter[]=current_grading_period&filter[]=submittable`,
-      { headers, params },
+    const courses = await fetchData<Course[]>(
+      userId,
+      "users/self/missing_submissions",
+      {
+        include: "planner_overrides",
+        filter: "current_grading_period_id,submittable",
+      },
     );
-
     return {
-      message: "Missing Courses fetched successfully",
-      courses: res.data || [],
+      message: "Missing submissions fetched successfully",
+      courses: courses,
     };
   } catch (error) {
-    console.error(
-      "Error fetching user's missing courses from Canvas:",
-      error instanceof Error ? error.message : String(error),
-    );
+    console.error("Failed to fetch missing submissions:", error);
     return {
-      message: "An error occurred while fetching courses.",
+      message: "Failed to fetch missing submissions",
       courses: [],
     };
   }
 }
 
-export async function getCourses(
-  canvasToken: string,
-  userID: string,
-): Promise<Course[]> {
+export async function getCourses(userId: string): Promise<Course[]> {
   try {
-    const canvasID = await getCanvasID(userID);
-    const response = await axios.get<Course[]>(
-      `${CONFIG.CANVAS_DOMAIN}users/${canvasID}/courses`,
-      {
-        headers: {
-          Authorization: `Bearer ${canvasToken}`,
-        },
-      },
-    );
-    return response.data;
+    const canvasID = await getCanvasID(userId);
+    return await fetchData<Course[]>(userId, `users/${canvasID}/courses`);
   } catch (error) {
     console.error("Failed to fetch courses:", error);
     throw new Error("Error fetching courses.");
@@ -171,11 +113,10 @@ export async function getCourses(
 }
 
 export async function getAllAnnouncements(
-  canvasToken: string,
-  userID: string,
+  userId: string,
 ): Promise<AnnouncementPost[]> {
   try {
-    const courses = await getCourses(canvasToken, userID);
+    const courses = await getCourses(userId);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -183,16 +124,13 @@ export async function getAllAnnouncements(
 
     for (const course of courses) {
       try {
-        const response = await axios.get<AnnouncementPost[]>(
-          `${CONFIG.CANVAS_DOMAIN}announcements?context_codes[]=course_${course.id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${canvasToken}`,
-            },
-          },
+        const announcements = await fetchData<AnnouncementPost[]>(
+          userId,
+          "announcements",
+          { context_codes: `course_${course.id}` },
         );
 
-        const filteredAnnouncements = response.data
+        const filteredAnnouncements = announcements
           .filter((announcement) => {
             const announcementDate = new Date(announcement.posted_at || "");
             return announcementDate >= today;
@@ -223,39 +161,27 @@ export async function getAllAnnouncements(
 export async function fetchAssignmentChecker(
   userId: string,
 ): Promise<Assignment[]> {
-  const canvasToken = await getCanvasToken(userId);
-  if (!canvasToken) {
-    throw new Error("Canvas token is null or undefined.");
+  try {
+    const courses = await getCourses(userId);
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(23, 59, 59, 999);
+
+    const assignmentPromises = courses.map((course) =>
+      fetchData<Assignment[]>(userId, `courses/${course.id}/assignments`),
+    );
+
+    const allAssignments = await Promise.all(assignmentPromises);
+
+    return allAssignments.flat().filter((assignment) => {
+      const dueDate = new Date(assignment.due_at);
+      return dueDate >= today && dueDate <= tomorrow;
+    });
+  } catch (error) {
+    console.error("Error fetching assignments for next day:", error);
+    return [];
   }
-  const courses = await getCourses(canvasToken, userId);
-
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const tomorrow = new Date(today);
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  tomorrow.setHours(23, 59, 59, 999);
-
-  let allAssignments: Assignment[] = [];
-
-  await Promise.all(
-    courses.map(async (course) => {
-      const { data: assignments } = await axios.get<Assignment[]>(
-        `${CONFIG.CANVAS_DOMAIN}courses/${course.id}/assignments`,
-        {
-          headers: {
-            Authorization: `Bearer ${canvasToken}`,
-          },
-        },
-      );
-
-      const filteredAssignments = assignments.filter((assignment) => {
-        const dueDate = new Date(assignment.due_at);
-        return dueDate >= today && dueDate <= tomorrow;
-      });
-
-      allAssignments = allAssignments.concat(filteredAssignments);
-    }),
-  );
-
-  return allAssignments;
 }
