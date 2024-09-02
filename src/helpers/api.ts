@@ -1,6 +1,11 @@
 import axios, { AxiosRequestConfig } from "axios";
 import { getCanvasID, getCanvasToken } from "./supabase";
-import { AnnouncementPost, Course, Assignment } from "../types";
+import {
+  AnnouncementPost,
+  Course,
+  Assignment,
+  DiscussionTopic,
+} from "../types";
 import { CONFIG } from "../config";
 
 export async function fetchData<T>(
@@ -183,5 +188,21 @@ export async function fetchAssignmentChecker(
   } catch (error) {
     console.error("Error fetching assignments for next day:", error);
     return [];
+  }
+}
+
+export async function getDiscussions(
+  userId: string,
+  courseId: number,
+): Promise<DiscussionTopic[]> {
+  try {
+    const discussions = await fetchData<DiscussionTopic[]>(
+      userId,
+      `courses/${courseId}/discussion_topics`,
+    );
+    return discussions;
+  } catch (error) {
+    console.error(`Failed to fetch discussions for course ${courseId}:`, error);
+    throw new Error("Error fetching discussions.");
   }
 }
