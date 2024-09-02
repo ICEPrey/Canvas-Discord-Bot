@@ -9,7 +9,7 @@ import { postAssignment } from "./assignmentChecker";
 const clientReadyEvent: BotEvent = {
   name: Events.ClientReady,
   once: true,
-  async execute(client: Client) {
+  execute: async (client: Client) => {
     console.log(`Up! Logged In As ${client?.user?.tag}`);
     client?.user?.setActivity("Your Assignments", {
       type: ActivityType.Watching,
