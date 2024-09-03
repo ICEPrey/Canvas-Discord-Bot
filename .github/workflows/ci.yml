@@ -36,8 +36,14 @@ jobs:
       - name: Type check
         run: bunx tsc --noEmit
 
+      - name: Create dist directory
+        run: mkdir -p dist
+
       - name: Build
         run: bunx tsc
+
+      - name: Check dist directory
+        run: ls -R dist || echo "dist directory not found or empty"
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
@@ -67,6 +73,9 @@ jobs:
           name: dist
           path: dist
 
+      - name: Check downloaded artifacts
+        run: ls -R dist || echo "dist directory not found or empty after download"
+
       - name: Deploy to production
         run: bun run deploy
         env:
@@ -77,7 +86,6 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON: ${{ secrets.SUPABASE_ANON }}
           CANVAS_DOMAIN: ${{ secrets.CANVAS_DOMAIN }}
-      # Add any other necessary environment variables here
 
   commitlint:
     runs-on: ubuntu-latest
