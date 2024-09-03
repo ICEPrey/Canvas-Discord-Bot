@@ -8,7 +8,7 @@ import {
   ChatInputCommandInteraction,
 } from "discord.js";
 import { randomColor } from "../../helpers/colors";
-import { fetchAssignments, fetchCourses } from "../../helpers/api";
+import { fetchAssignments, getCourses } from "../../helpers/api";
 import { Course } from "../../types";
 
 export const data = new SlashCommandBuilder()
@@ -17,7 +17,7 @@ export const data = new SlashCommandBuilder()
 
 export async function execute(interaction: ChatInputCommandInteraction) {
   const userId = interaction.user.id;
-  const courses = await fetchCourses(userId);
+  const courses = await getCourses(userId);
   if (courses.length === 0) {
     await interaction.reply({
       content: "You have no courses.",

@@ -20,9 +20,8 @@ export async function execute(interaction: ChatInputCommandInteraction) {
       aliases: [],
     };
     const userId: string = interaction.user.id;
-    const userAssignments: MissingAssignmentResponse = await getAllAssignments(
-      userId,
-    );
+    const userAssignments: MissingAssignmentResponse =
+      await getAllAssignments(userId);
 
     if (userAssignments.courses.length === 0) {
       await interaction.reply({
