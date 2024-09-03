@@ -1,4 +1,3 @@
-// discussion
 import {
   ChatInputCommandInteraction,
   EmbedBuilder,
