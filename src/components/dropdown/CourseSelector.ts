@@ -1,12 +1,13 @@
 import {
   ActionRowBuilder,
-  StringSelectMenuBuilder,
-  ComponentType,
   ChatInputCommandInteraction,
+  Collection,
+  ComponentType,
+  StringSelectMenuBuilder,
+  StringSelectMenuInteraction,
 } from "discord.js";
-import { fetchCourses } from "../../helpers/api";
+import { getCourses } from "../../helpers/api";
 import { Course } from "../../types";
-
 const SELECTION_TIMEOUT = 60000;
 
 export async function CourseSelector(
@@ -14,9 +15,9 @@ export async function CourseSelector(
   userId: string,
 ): Promise<string | null> {
   try {
-    const courses = await fetchCourses(userId);
+    const courses = await getCourses(userId);
     if (courses.length === 0) {
-      await interaction.reply({
+      await interaction.followUp({
         content: "You have no active courses.",
         ephemeral: true,
       });
@@ -36,43 +37,47 @@ export async function CourseSelector(
     const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
       selectMenu,
     );
-
-    await interaction.reply({
+    const followUpMessage = await interaction.followUp({
       content: "Please select a course:",
       components: [row],
       ephemeral: true,
+      fetchReply: true,
     });
 
-    return new Promise((resolve) => {
-      const collector = interaction.channel?.createMessageComponentCollector({
+    return new Promise<string | null>((resolve) => {
+      const collector = followUpMessage.createMessageComponentCollector({
         componentType: ComponentType.StringSelect,
         time: SELECTION_TIMEOUT,
       });
 
-      collector?.on("collect", async (i) => {
+      collector.on("collect", async (i: StringSelectMenuInteraction) => {
         const courseId = i.values[0];
         await i.update({
           content: `You selected course ID: ${courseId}`,
           components: [],
         });
+        collector.stop();
         resolve(courseId);
       });
 
-      collector?.on("end", async (collected) => {
-        if (collected.size === 0) {
-          await interaction.followUp({
-            content: "Course selection timed out. Please try again.",
-            ephemeral: true,
-          });
-          resolve(null);
-        }
-      });
+      collector.on(
+        "end",
+        async (collected: Collection<string, StringSelectMenuInteraction>) => {
+          if (collected.size === 0) {
+            await interaction.followUp({
+              content: "Course selection timed out. Please try again.",
+              ephemeral: true,
+            });
+            resolve(null);
+          }
+        },
+      );
     });
   } catch (error) {
-    console.error(`Error fetching courses for user ${userId}:`, error);
-    await interaction.reply({
+    console.error(`Error in CourseSelector for user ${userId}:`, error);
+    await interaction.followUp({
       content:
-        "An error occurred while fetching your courses. Please try again later.",
+        "An error occurred while fetching courses. Please try again later.",
       ephemeral: true,
     });
     return null;

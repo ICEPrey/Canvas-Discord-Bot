@@ -1,5 +1,5 @@
 import axios, { AxiosRequestConfig } from "axios";
-import { getCanvasID, getCanvasToken } from "./supabase";
+import { getCanvasToken } from "./supabase";
 import {
   AnnouncementPost,
   Course,
@@ -19,7 +19,9 @@ export async function fetchData<T>(
     if (!canvasToken) {
       throw new Error("Canvas token is not found.");
     }
-    const response = await axios.get<T>(`${CONFIG.CANVAS_DOMAIN}${endpoint}`, {
+
+    const url = `${CONFIG.CANVAS_DOMAIN}${endpoint}`;
+    const response = await axios.get<T>(url, {
       timeout: 10000,
       headers: {
         Authorization: `Bearer ${canvasToken}`,
@@ -34,29 +36,13 @@ export async function fetchData<T>(
       console.error(
         `Axios error fetching data from ${endpoint}:`,
         error.message,
+        error.response?.status,
+        error.response?.data,
       );
     } else {
       console.error(`Unexpected error fetching data from ${endpoint}:`, error);
     }
     throw error;
-  }
-}
-
-export async function fetchCourses(userId: string) {
-  try {
-    const canvasID = await getCanvasID(userId);
-    const courses = await fetchData<Course[]>(
-      userId,
-      `users/${canvasID}/courses`,
-      {
-        enrollment_type: "student",
-        enrollment_state: "active",
-      },
-    );
-    return courses;
-  } catch (error) {
-    console.error("Failed to fetch courses:", error);
-    throw new Error("Error fetching courses.");
   }
 }
 
@@ -109,8 +95,10 @@ export async function getAllAssignments(
 
 export async function getCourses(userId: string): Promise<Course[]> {
   try {
-    const canvasID = await getCanvasID(userId);
-    return await fetchData<Course[]>(userId, `users/${canvasID}/courses`);
+    return await fetchData<Course[]>(userId, "courses", {
+      enrollment_type: "student",
+      enrollment_state: "active",
+    });
   } catch (error) {
     console.error("Failed to fetch courses:", error);
     throw new Error("Error fetching courses.");

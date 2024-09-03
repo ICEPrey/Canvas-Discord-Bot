@@ -9,7 +9,7 @@
     "start": "bun ./dist/index.js",
     "watch": "bunx tsc -w",
     "format": "bunx prettier --write .",
-    "lint": "eslint . --fix ",
+    "lint": "eslint . --fix --ignore-pattern 'dist/*'",
     "prepare": "husky"
   },
   "keywords": [

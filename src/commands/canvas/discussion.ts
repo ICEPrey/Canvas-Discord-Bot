@@ -1,11 +1,10 @@
+// discussion
 import {
   ChatInputCommandInteraction,
-  Client,
   EmbedBuilder,
   SlashCommandBuilder,
 } from "discord.js";
 import { randomColor } from "../../helpers/colors";
-import { Command, DiscussionTopic } from "../../types";
 import { getDiscussions } from "../../helpers/api";
 import { convert } from "html-to-text";
 import { CourseSelector } from "../../components/dropdown/CourseSelector";
@@ -15,28 +14,24 @@ export const data = new SlashCommandBuilder()
   .setDescription("Fetches the latest discussion from Canvas")
   .setDMPermission(false);
 
-export async function execute(
-  interaction: ChatInputCommandInteraction,
-  client: Client,
-) {
+export async function execute(interaction: ChatInputCommandInteraction) {
   try {
-    const commandData: Command["data"] = {
-      name: "discussion",
-      permissions: [],
-      aliases: [],
-    };
     const userId: string = interaction.user.id;
     await interaction.deferReply({ ephemeral: true });
-
     const courseId = await CourseSelector(interaction, userId);
-    if (!courseId) return;
 
-    const discussions: DiscussionTopic[] = await getDiscussions(
-      userId,
-      parseInt(courseId),
-    );
+    if (!courseId) {
+      await interaction.editReply("No course was selected. Command cancelled.");
+      return;
+    }
+
+    // Fetch discussions for the selected course
+    const discussions = await getDiscussions(userId, parseInt(courseId));
+
     if (!discussions || discussions.length === 0) {
-      await interaction.editReply("No discussions found.");
+      await interaction.editReply(
+        "No discussions found for the selected course.",
+      );
       return;
     }
 
@@ -49,13 +44,18 @@ export async function execute(
       .setTimestamp(new Date(discussion.posted_at))
       .setFooter({ text: "Next Canvas check in 24 hours." });
 
-    await interaction.editReply({ embeds: [embed] });
-    return { data: commandData };
+    await interaction.editReply({
+      content: "Here's the latest discussion:",
+      embeds: [embed],
+    });
   } catch (error) {
     console.error(
-      `Error fetching discussion for user ${client.user?.id}:`,
+      `Unexpected error in discussion command for user ${interaction.user.id}:`,
       error,
     );
-    await interaction.editReply("There was an error fetching the discussion.");
+    await interaction.editReply({
+      content:
+        "An unexpected error occurred. Please try again later or contact support if the issue persists.",
+    });
   }
 }
