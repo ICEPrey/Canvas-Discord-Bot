@@ -10,7 +10,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Use Bun
         uses: oven-sh/setup-bun@v2
@@ -19,6 +20,12 @@ jobs:
 
       - name: Install dependencies
         run: bun install
+
+      - name: Check Bun version
+        run: bun --version
+
+      - name: Check TypeScript version
+        run: bunx tsc --version
 
       - name: Format code
         run: bun run format
@@ -32,10 +39,51 @@ jobs:
       - name: Build
         run: bunx tsc
 
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: dist
+          path: dist
+
+      - name: Run tests
+        run: bun test
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Use Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: dist
+          path: dist
+
+      - name: Deploy to production
+        run: bun run deploy
+        env:
+          TOKEN: ${{ secrets.TOKEN }}
+          CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          GUILD_ID: ${{ secrets.GUILD_ID }}
+          ACCESS: ${{ secrets.ACCESS }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON: ${{ secrets.SUPABASE_ANON }}
+          CANVAS_DOMAIN: ${{ secrets.CANVAS_DOMAIN }}
+      # Add any other necessary environment variables here
+
   commitlint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -45,8 +93,7 @@ jobs:
           bun-version: latest
 
       - name: Install commitlint
-        run: |
-          bun add -d @commitlint/cli @commitlint/config-conventional
+        run: bun add -d @commitlint/cli @commitlint/config-conventional
 
       - name: Print versions
         run: |
