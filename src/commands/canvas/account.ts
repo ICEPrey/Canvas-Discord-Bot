@@ -8,6 +8,10 @@ import {
   codeBlock,
   ChatInputCommandInteraction,
   Interaction,
+  Collection,
+  MessageComponentInteraction,
+  StringSelectMenuInteraction,
+  TextChannel,
 } from "discord.js";
 import { AccessToken, getCanvasToken } from "../../helpers/supabase";
 import axios from "axios";
@@ -35,13 +39,22 @@ async function chooseSchool(
     components: [row],
   });
 
-  const collector = interaction.channel?.createMessageComponentCollector({
+  if (
+    !interaction.channel ||
+    !("createMessageComponentCollector" in interaction.channel)
+  ) {
+    throw new Error("Invalid channel for component collector");
+  }
+
+  const collector = (
+    interaction.channel as TextChannel
+  ).createMessageComponentCollector({
     componentType: ComponentType.StringSelect,
     time: 60000,
   });
 
   return new Promise((resolve, reject) => {
-    collector?.on("collect", async (index) => {
+    collector.on("collect", async (index: StringSelectMenuInteraction) => {
       const selectedOption = schools.find(
         (school) => school.id === parseInt(index.values[0]),
       );
@@ -60,15 +73,21 @@ async function chooseSchool(
       }
     });
 
-    collector?.on("end", async (collected, reason) => {
-      if (reason === "time" && !collected.size) {
-        await interaction.editReply({
-          content: "School selection timed out. Please try again.",
-          components: [],
-        });
-        reject(new Error("Timeout"));
-      }
-    });
+    collector.on(
+      "end",
+      async (
+        collected: Collection<string, MessageComponentInteraction>,
+        reason: string,
+      ) => {
+        if (reason === "time" && !collected.size) {
+          await interaction.editReply({
+            content: "School selection timed out. Please try again.",
+            components: [],
+          });
+          reject(new Error("Timeout"));
+        }
+      },
+    );
   });
 }
 
@@ -121,7 +140,16 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     components: [row],
   });
 
-  const confirmation = await interaction.channel?.awaitMessageComponent({
+  if (
+    !interaction.channel ||
+    !("awaitMessageComponent" in interaction.channel)
+  ) {
+    throw new Error("Invalid channel for awaiting message component");
+  }
+
+  const confirmation = await (
+    interaction.channel as TextChannel
+  ).awaitMessageComponent({
     filter: (i: Interaction) => i.user.id === userId,
     time: 60000,
   });

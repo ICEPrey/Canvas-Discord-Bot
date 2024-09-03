@@ -4,8 +4,11 @@ import {
   StringSelectMenuBuilder,
   ComponentType,
   EmbedBuilder,
-  InteractionReplyOptions,
   ChatInputCommandInteraction,
+  StringSelectMenuInteraction,
+  Collection,
+  MessageComponentInteraction,
+  TextChannel,
 } from "discord.js";
 import { randomColor } from "../../helpers/colors";
 import { fetchAssignments, getCourses } from "../../helpers/api";
@@ -18,6 +21,7 @@ export const data = new SlashCommandBuilder()
 export async function execute(interaction: ChatInputCommandInteraction) {
   const userId = interaction.user.id;
   const courses = await getCourses(userId);
+
   if (courses.length === 0) {
     await interaction.reply({
       content: "You have no courses.",
@@ -36,25 +40,37 @@ export async function execute(interaction: ChatInputCommandInteraction) {
       })),
     );
 
-  const row = new ActionRowBuilder().addComponents(selectMenu);
+  const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+    selectMenu,
+  );
 
   await interaction.reply({
     content: "Please select a course:",
-    components: [row.toJSON()],
+    components: [row],
     ephemeral: true,
-  } as InteractionReplyOptions);
+  });
 
-  const collector = interaction.channel?.createMessageComponentCollector({
+  if (
+    !interaction.channel ||
+    !("createMessageComponentCollector" in interaction.channel)
+  ) {
+    throw new Error("Invalid channel for component collector");
+  }
+
+  const collector = (
+    interaction.channel as TextChannel
+  ).createMessageComponentCollector({
     componentType: ComponentType.StringSelect,
     time: 60000,
   });
 
-  collector?.on("collect", async (i) => {
+  collector.on("collect", async (i: StringSelectMenuInteraction) => {
     const courseId = i.values[0];
     const assignmentsResponse = await fetchAssignments(
       parseInt(courseId),
       userId,
     );
+
     const upcomingAssignments = assignmentsResponse.assignments.filter(
       (assignment: { due_at: string }) =>
         new Date(assignment.due_at) > new Date(),
@@ -80,19 +96,25 @@ export async function execute(interaction: ChatInputCommandInteraction) {
           iconURL:
             "https://play-lh.googleusercontent.com/2_M-EEPXb2xTMQSTZpSUefHR3TjgOCsawM3pjVG47jI-BrHoXGhKBpdEHeLElT95060B=w240-h480-rw",
         });
-      await i.update({ embeds: [embed] });
+
+      await i.update({ embeds: [embed], components: [] });
     } else {
       await i.update({
         content: "There are no upcoming assignments for this course.",
+        components: [],
       });
     }
   });
-  collector?.on("end", async (collected) => {
-    if (collected.size === 0) {
-      await interaction.followUp({
-        content: "No course was selected.",
-        ephemeral: true,
-      });
-    }
-  });
+
+  collector.on(
+    "end",
+    async (collected: Collection<string, MessageComponentInteraction>) => {
+      if (collected.size === 0) {
+        await interaction.followUp({
+          content: "No course was selected.",
+          ephemeral: true,
+        });
+      }
+    },
+  );
 }
