@@ -10,6 +10,7 @@
     "watch": "bunx tsc -w",
     "format": "bunx prettier --write .",
     "lint": "eslint . --fix --ignore-pattern 'dist/*'",
+    "dev": "bun --watch ./dist/index.js",
     "prepare": "husky"
   },
   "keywords": [
