@@ -1,184 +1,152 @@
 import {
   SlashCommandBuilder,
-  ButtonBuilder,
-  ButtonStyle,
   ActionRowBuilder,
+  ChatInputCommandInteraction,
+  TextInputBuilder,
+  TextInputStyle,
+  ModalBuilder,
   StringSelectMenuBuilder,
   ComponentType,
-  codeBlock,
-  ChatInputCommandInteraction,
-  Interaction,
-  Collection,
-  MessageComponentInteraction,
   StringSelectMenuInteraction,
-  TextChannel,
 } from "discord.js";
 import { AccessToken, getCanvasToken } from "../../helpers/supabase";
 import axios from "axios";
-
-async function chooseSchool(
-  interaction: ChatInputCommandInteraction,
-  schools: { name: string; id: number; domain: string }[],
-): Promise<{ name: string; id: number; domain: string }> {
-  const selectMenu = new StringSelectMenuBuilder()
-    .setCustomId("school_select")
-    .setPlaceholder("Select a school")
-    .addOptions(
-      schools.map((school) => ({
-        label: school.name,
-        value: school.id.toString(),
-      })),
-    );
-
-  const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-    selectMenu,
-  );
-
-  await interaction.editReply({
-    content: "Please select your college:",
-    components: [row],
-  });
-
-  if (
-    !interaction.channel ||
-    !("createMessageComponentCollector" in interaction.channel)
-  ) {
-    throw new Error("Invalid channel for component collector");
-  }
-
-  const collector = (
-    interaction.channel as TextChannel
-  ).createMessageComponentCollector({
-    componentType: ComponentType.StringSelect,
-    time: 60000,
-  });
-
-  return new Promise((resolve, reject) => {
-    collector.on("collect", async (index: StringSelectMenuInteraction) => {
-      const selectedOption = schools.find(
-        (school) => school.id === parseInt(index.values[0]),
-      );
-      if (selectedOption) {
-        await interaction.editReply({
-          content: `You have selected: ${selectedOption.name}`,
-          components: [],
-        });
-        resolve(selectedOption);
-      } else {
-        await interaction.followUp({
-          content:
-            "Invalid selection. Please select a valid school from the dropdown menu.",
-          ephemeral: true,
-        });
-      }
-    });
-
-    collector.on(
-      "end",
-      async (
-        collected: Collection<string, MessageComponentInteraction>,
-        reason: string,
-      ) => {
-        if (reason === "time" && !collected.size) {
-          await interaction.editReply({
-            content: "School selection timed out. Please try again.",
-            components: [],
-          });
-          reject(new Error("Timeout"));
-        }
-      },
-    );
-  });
-}
+import { SchoolSearchResult } from "../../types";
 
 export const data = new SlashCommandBuilder()
   .setName("account")
   .setDescription("Set an access token to use the /assignment command")
-  .addStringOption((option) =>
-    option
-      .setName("token")
-      .setDescription("The canvas access token")
-      .setRequired(true),
-  )
   .setDMPermission(false);
 
 export async function execute(interaction: ChatInputCommandInteraction) {
-  const token = interaction.options.getString("token", true);
   const userId = interaction.user.id;
   const existingToken = await getCanvasToken(userId);
 
   if (existingToken !== null) {
     await interaction.reply({
-      ephemeral: true,
       content:
         "You already have a Canvas token stored. If you want to update it, please contact support.",
+      ephemeral: true,
     });
     return;
   }
 
-  const confirm = new ButtonBuilder()
-    .setCustomId("confirm")
-    .setLabel("Submit Token")
-    .setStyle(ButtonStyle.Success);
+  const modal = new ModalBuilder()
+    .setCustomId("tokenModal")
+    .setTitle("Canvas Access Token");
 
-  const cancel = new ButtonBuilder()
-    .setCustomId("cancel")
-    .setLabel("Cancel")
-    .setStyle(ButtonStyle.Danger);
+  const tokenInput = new TextInputBuilder()
+    .setCustomId("tokenInput")
+    .setLabel("Enter your Canvas access token")
+    .setStyle(TextInputStyle.Short)
+    .setRequired(true);
 
-  const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-    cancel,
-    confirm,
+  const schoolInput = new TextInputBuilder()
+    .setCustomId("schoolInput")
+    .setLabel("Enter your school name")
+    .setStyle(TextInputStyle.Short)
+    .setRequired(true);
+
+  const tokenRow = new ActionRowBuilder<TextInputBuilder>().addComponents(
+    tokenInput,
+  );
+  const schoolRow = new ActionRowBuilder<TextInputBuilder>().addComponents(
+    schoolInput,
   );
 
-  await interaction.reply({
-    ephemeral: true,
-    content: `Are you sure you want to submit this token: \n${codeBlock(
-      "fix",
-      token,
-    )}`,
-    components: [row],
-  });
+  modal.addComponents(tokenRow, schoolRow);
 
-  if (
-    !interaction.channel ||
-    !("awaitMessageComponent" in interaction.channel)
-  ) {
-    throw new Error("Invalid channel for awaiting message component");
-  }
+  await interaction.showModal(modal);
 
-  const confirmation = await (
-    interaction.channel as TextChannel
-  ).awaitMessageComponent({
-    filter: (i: Interaction) => i.user.id === userId,
-    time: 60000,
-  });
+  try {
+    const modalSubmission = await interaction.awaitModalSubmit({
+      filter: (i) => i.customId === "tokenModal",
+      time: 60000,
+    });
 
-  if (confirmation?.customId === "confirm") {
-    const schoolResponse = await axios.get(
-      "https://canvas.instructure.com/api/v1/accounts/search?name=long beach&per_page=5",
-    );
-    const schools = schoolResponse.data;
-    const selectedSchool = await chooseSchool(interaction, schools);
+    if (modalSubmission) {
+      await modalSubmission.deferReply({ ephemeral: true });
 
-    if (selectedSchool) {
-      await AccessToken(token, userId, selectedSchool.id, {
-        name: selectedSchool.name,
-        domain: selectedSchool.domain,
+      const token = modalSubmission.fields.getTextInputValue("tokenInput");
+      const schoolName =
+        modalSubmission.fields.getTextInputValue("schoolInput");
+
+      const schoolResponse = await axios.get<SchoolSearchResult[]>(
+        `https://canvas.instructure.com/api/v1/accounts/search?name=${encodeURIComponent(schoolName)}&per_page=5`,
+      );
+      const schools = schoolResponse.data;
+
+      if (schools.length === 0) {
+        await modalSubmission.editReply({
+          content: "No schools found with that name. Please try again.",
+        });
+        return;
+      }
+
+      const schoolOptions = schools.map((school: SchoolSearchResult) => ({
+        label: school.name,
+        value: school.id.toString(),
+        description: school.domain,
+      }));
+
+      const selectMenu = new StringSelectMenuBuilder()
+        .setCustomId("school_select")
+        .setPlaceholder("Select your school")
+        .addOptions(schoolOptions);
+
+      const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+        selectMenu,
+      );
+
+      const response = await modalSubmission.editReply({
+        content: "Please select your school:",
+        components: [row],
       });
-      await interaction.followUp({
-        content: `Token has been successfully saved to the database for ${selectedSchool.name}`,
-        ephemeral: true,
+
+      const collector = response.createMessageComponentCollector({
+        componentType: ComponentType.StringSelect,
+        time: 30000,
       });
-    } else {
-      await interaction.followUp({
-        content: "Invalid school selection. Please try again.",
-        ephemeral: true,
+
+      collector.on("collect", async (i: StringSelectMenuInteraction) => {
+        const selectedSchoolId = i.values[0];
+        const selectedSchool = schools.find(
+          (school) => school.id.toString() === selectedSchoolId,
+        );
+
+        if (selectedSchool) {
+          await AccessToken(token, interaction.user.id, selectedSchool.id, {
+            name: selectedSchool.name,
+            domain: selectedSchool.domain,
+          });
+
+          await i.update({
+            content: `Token has been successfully saved to the database for ${selectedSchool.name}`,
+            components: [],
+          });
+        } else {
+          await i.update({
+            content: "School selection failed. Please try again.",
+            components: [],
+          });
+        }
+
+        collector.stop();
+      });
+
+      collector.on("end", async (collected) => {
+        if (collected.size === 0) {
+          await modalSubmission.editReply({
+            content: "School selection timed out. Please try again.",
+            components: [],
+          });
+        }
       });
     }
-  } else {
+  } catch (error) {
+    console.error("Error in account command:", error);
     await interaction.followUp({
-      content: "Action cancelled",
+      content: "An error occurred or the command timed out. Please try again.",
       ephemeral: true,
     });
   }

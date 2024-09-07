@@ -236,3 +236,10 @@ export interface DiscussionTopic extends DataItem {
   message: string;
   assignment: DiscussionAssignment;
 }
+interface SchoolSearchResult {
+  id: number;
+  name: string;
+  domain: string;
+  distance: number | null;
+  authentication_provider: string;
+}
