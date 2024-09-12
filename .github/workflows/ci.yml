@@ -67,6 +67,7 @@ jobs:
           echo "SUPABASE_URL is set: ${{ secrets.SUPABASE_URL != '' }}"
           echo "SUPABASE_ANON is set: ${{ secrets.SUPABASE_ANON != '' }}"
           echo "CANVAS_DOMAIN is set: ${{ secrets.CANVAS_DOMAIN != '' }}"
+          echo "CANVAS_DOMAIN is set: ${{ secrets.ENCRYPTION_KEY != '' }}"
       - name: Deploy to production
         run: bun run deploy
         env:
@@ -77,6 +78,8 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON: ${{ secrets.SUPABASE_ANON }}
           CANVAS_DOMAIN: ${{ secrets.CANVAS_DOMAIN }}
+          ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
+
   commitlint:
     runs-on: ubuntu-latest
     steps:

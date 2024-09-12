@@ -9,4 +9,5 @@ export const CONFIG = {
   CANVAS_DOMAIN: process.env.CANVAS_DOMAIN || "",
   SUPABASE_URL: process.env.SUPABASE_URL || "",
   SUPABASE_ANON: process.env.SUPABASE_ANON || "",
+  ENCRYPTION_KEY: process.env.ENCRYPTION_KEY || "",
 };

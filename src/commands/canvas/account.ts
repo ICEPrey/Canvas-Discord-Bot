@@ -9,7 +9,7 @@ import {
   ComponentType,
   StringSelectMenuInteraction,
 } from "discord.js";
-import { AccessToken, getCanvasToken } from "../../helpers/supabase";
+import { getCanvasToken, upsertUser } from "../../helpers/supabase";
 import axios from "axios";
 import { SchoolSearchResult } from "../../types";
 
@@ -115,9 +115,10 @@ export async function execute(interaction: ChatInputCommandInteraction) {
         );
 
         if (selectedSchool) {
-          await AccessToken(token, interaction.user.id, selectedSchool.id, {
+          await upsertUser(token, interaction.user.id, selectedSchool.id, {
+            id: selectedSchool.id,
             name: selectedSchool.name,
-            domain: selectedSchool.domain,
+            canvas_domain: selectedSchool.domain,
           });
 
           await i.update({
