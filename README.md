@@ -79,11 +79,29 @@
 
 Node.js: Make sure you have Node.js installed on your system. If not, you can download it from the official Node.js website.
 
-Canvas API Credentials: You'll need your Canvas LMS API credentials to connect the bot to your Canvas courses. These credentials are typically generated through your Canvas account settings.
+Canvas API Credentials:
 
-Discord Bot Token: To interact with your Discord server, you'll need to create a bot on the Discord Developer Portal and obtain a bot token.
+- Go to your Canvas LMS account settings
+- Look for the "Approved Integrations" or "API Access Tokens" section
+- Generate a new API token
+- Copy the generated token and paste it into the .env file
+- Keep this token secure as it provides access to your Canvas account
 
-Supabase Account: Set up a Supabase account at supabase.io to utilize their database services for storing and managing your bot's data (token & discord user id).
+Discord Bot Token:
+
+- Go to the Discord Developer Portal (discord.com/developers/applications)
+- Create a new application and add a bot to it
+- Find the bot token in the "Bot" section
+- Copy the bot token and paste it into the .env file
+- Invite the bot to your Discord server using the OAuth2 URL generator
+
+Supabase Account:
+
+- Set up a Supabase account at supabase.com
+- Create a new project (you can use the "Free" tier)
+- Find the project URL and anonymous key in "Settings" > "API"
+- Paste the project URL and anonymous key into the .env file
+- Then navigate to the sql editor in Supabase and copy the setup.sql script into the SQL editor in Supabase to create the database schema
 
 ### Prerequisites
 

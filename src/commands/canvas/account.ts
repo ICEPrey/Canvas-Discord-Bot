@@ -9,7 +9,7 @@ import {
   ComponentType,
   StringSelectMenuInteraction,
 } from "discord.js";
-import { AccessToken, getCanvasToken } from "../../helpers/supabase";
+import { getCanvasToken, upsertUser } from "../../helpers/supabase";
 import axios from "axios";
 import { SchoolSearchResult } from "../../types";
 
@@ -38,12 +38,14 @@ export async function execute(interaction: ChatInputCommandInteraction) {
   const tokenInput = new TextInputBuilder()
     .setCustomId("tokenInput")
     .setLabel("Enter your Canvas access token")
+    .setPlaceholder("(this is crypted) 12345~AbCdE.....")
     .setStyle(TextInputStyle.Short)
     .setRequired(true);
 
   const schoolInput = new TextInputBuilder()
     .setCustomId("schoolInput")
     .setLabel("Enter your school name")
+    .setPlaceholder("Long Beach College")
     .setStyle(TextInputStyle.Short)
     .setRequired(true);
 
@@ -72,7 +74,9 @@ export async function execute(interaction: ChatInputCommandInteraction) {
         modalSubmission.fields.getTextInputValue("schoolInput");
 
       const schoolResponse = await axios.get<SchoolSearchResult[]>(
-        `https://canvas.instructure.com/api/v1/accounts/search?name=${encodeURIComponent(schoolName)}&per_page=5`,
+        `https://canvas.instructure.com/api/v1/accounts/search?name=${encodeURIComponent(
+          schoolName,
+        )}&per_page=5`,
       );
       const schools = schoolResponse.data;
 
@@ -115,9 +119,10 @@ export async function execute(interaction: ChatInputCommandInteraction) {
         );
 
         if (selectedSchool) {
-          await AccessToken(token, interaction.user.id, selectedSchool.id, {
+          await upsertUser(token, interaction.user.id, selectedSchool.id, {
+            id: selectedSchool.id,
             name: selectedSchool.name,
-            domain: selectedSchool.domain,
+            canvas_domain: selectedSchool.domain,
           });
 
           await i.update({

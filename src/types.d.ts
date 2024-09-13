@@ -102,16 +102,17 @@ export interface Course extends DataItem {
 }
 
 export interface CanvasUser {
-  discord_user: string;
-  token: string;
-  canvas_id: number;
-  school: string;
-  school_domain: string;
+  id: number;
+  discord_id: string;
+  canvas_user_id: number;
+  canvas_api_token: string;
+  school_id: number;
 }
 
 export interface SelectedSchool {
+  id: number;
   name: string;
-  domain: string;
+  canvas_domain: string;
 }
 
 export interface DataItem {
