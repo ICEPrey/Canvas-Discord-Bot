@@ -13,7 +13,9 @@ export async function fetchUsers(): Promise<CanvasUser[]> {
   }
 }
 
-export async function getCanvasToken(discordId: string): Promise<string | null> {
+export async function getCanvasToken(
+  discordId: string,
+): Promise<string | null> {
   try {
     const { data, error } = await supabase
       .from("users")
@@ -30,7 +32,9 @@ export async function getCanvasToken(discordId: string): Promise<string | null> 
       return decryptToken(data.canvas_api_token);
     } catch {
       // If decryption fails, it might be an old, unencrypted token
-      console.warn("Token decryption failed, might be an old unencrypted token");
+      console.warn(
+        "Token decryption failed, might be an old unencrypted token",
+      );
       return data.canvas_api_token;
     }
   } catch (error) {
@@ -93,16 +97,17 @@ export async function upsertUser(
     const schoolId = existingSchool.id;
 
     // Upsert user with encrypted token
-    const { error: upsertError } = await supabase
-      .from("users")
-      .upsert({
+    const { error: upsertError } = await supabase.from("users").upsert(
+      {
         discord_id: discordId,
         canvas_api_token: encryptedToken,
         canvas_user_id: canvasUserId,
         school_id: schoolId,
-      }, {
+      },
+      {
         onConflict: "discord_id",
-      });
+      },
+    );
 
     if (upsertError) throw upsertError;
   } catch (error) {

@@ -38,12 +38,14 @@ export async function execute(interaction: ChatInputCommandInteraction) {
   const tokenInput = new TextInputBuilder()
     .setCustomId("tokenInput")
     .setLabel("Enter your Canvas access token")
+    .setPlaceholder("(this is crypted) 12345~AbCdE.....")
     .setStyle(TextInputStyle.Short)
     .setRequired(true);
 
   const schoolInput = new TextInputBuilder()
     .setCustomId("schoolInput")
     .setLabel("Enter your school name")
+    .setPlaceholder("Long Beach College")
     .setStyle(TextInputStyle.Short)
     .setRequired(true);
 
@@ -72,7 +74,9 @@ export async function execute(interaction: ChatInputCommandInteraction) {
         modalSubmission.fields.getTextInputValue("schoolInput");
 
       const schoolResponse = await axios.get<SchoolSearchResult[]>(
-        `https://canvas.instructure.com/api/v1/accounts/search?name=${encodeURIComponent(schoolName)}&per_page=5`,
+        `https://canvas.instructure.com/api/v1/accounts/search?name=${encodeURIComponent(
+          schoolName,
+        )}&per_page=5`,
       );
       const schools = schoolResponse.data;
 
