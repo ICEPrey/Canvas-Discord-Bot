@@ -79,15 +79,22 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     if (upcomingAssignments.length > 0) {
       const embed = new EmbedBuilder()
         .setColor(randomColor())
-        .setTitle("Upcoming Assignments")
+        .setTitle("📚 Upcoming Assignments")
         .setDescription(
           "Here are the upcoming assignments for the selected course:",
         )
         .addFields(
           upcomingAssignments.map(
-            (assignment: { name: string; due_at: string }) => ({
-              name: assignment.name,
-              value: `Due: ${new Date(assignment.due_at).toLocaleString()}`,
+            (assignment: {
+              name: string;
+              due_at: string;
+              html_url: string;
+            }) => ({
+              name: `${assignment.name}`,
+              value: `Due: ${new Date(assignment.due_at).toLocaleString()} \n[${
+                assignment.name
+              }](${assignment.html_url})`,
+              inline: false,
             }),
           ),
         )
