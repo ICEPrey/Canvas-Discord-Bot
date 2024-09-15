@@ -7,27 +7,34 @@ import { randomColor } from "../../helpers/colors";
 
 export const data = new SlashCommandBuilder()
   .setName("ping")
-  .setDescription("Get the bot's ping");
+  .setDescription("Get the bot's ping and API latency");
 
 export async function execute(interaction: ChatInputCommandInteraction) {
-  const reply = await interaction.reply({
+  const sent = await interaction.reply({
+    content: "Pinging...",
     ephemeral: true,
     fetchReply: true,
-    embeds: [
-      new EmbedBuilder()
-        .setDescription("Calculating ping...")
-        .setColor(randomColor()),
-    ],
   });
+
+  const roundtripLatency = sent.createdTimestamp - interaction.createdTimestamp;
+  const wsLatency = interaction.client.ws.ping;
+
   const embed = new EmbedBuilder()
-    .setDescription(
-      `Pong! Latency is ${
-        reply.createdTimestamp - interaction.createdTimestamp
-      }ms`,
+    .setColor(randomColor())
+    .setTitle("🏓 Pong!")
+    .addFields(
+      {
+        name: "Bot Response Time",
+        value: `${roundtripLatency}ms`,
+        inline: true,
+      },
+      { name: "API Latency", value: `${wsLatency}ms`, inline: true },
     )
-    .setColor(randomColor());
+    .setFooter({ text: "Bot Ping Information" })
+    .setTimestamp();
 
   await interaction.editReply({
+    content: "",
     embeds: [embed],
   });
 }
