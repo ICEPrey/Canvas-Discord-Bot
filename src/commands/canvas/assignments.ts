@@ -14,9 +14,11 @@ import { randomColor } from "../../helpers/colors";
 import { fetchAssignments, getCourses } from "../../helpers/api";
 import { Course } from "../../types";
 
-export const data = new SlashCommandBuilder()
-  .setName("assignments")
-  .setDescription("Display assignments for your courses");
+export default {
+  data: new SlashCommandBuilder()
+    .setName("assignments")
+    .setDescription("Display assignments for your courses"),
+};
 
 export async function execute(interaction: ChatInputCommandInteraction) {
   const userId = interaction.user.id;

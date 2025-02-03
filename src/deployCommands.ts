@@ -4,50 +4,36 @@ import {
   Routes,
   Client,
 } from "discord.js";
-import { readdir } from "fs/promises";
-import { join } from "path/posix";
-import { Command, SlashCommand } from "./types";
+import { SlashCommand } from "./types";
 import { CONFIG } from "./config";
 import fs from "fs";
 import path from "path";
 import logger from "./logger";
 
-const commands: Command[] = [];
-const foldersPath = join(__dirname, "commands");
-
-async function loadCommands(client: Client) {
+async function deployCommands(client: Client) {
+  const commands: RESTPostAPIApplicationCommandsJSONBody[] = [];
   const commandsPath = path.join(__dirname, "../commands");
+
+  // Load command files
   const commandFiles = fs
     .readdirSync(commandsPath)
     .filter((file) => file.endsWith(".ts"));
 
+  // Register commands with the client
   for (const file of commandFiles) {
     const filePath = path.join(commandsPath, file);
-    const command: SlashCommand = require(filePath);
-    client.slashCommands.set(command.command.name, command);
-  }
-}
-
-async function loadCommandsOld() {
-  const commandFolders = await readdir(foldersPath);
-
-  for (const folder of commandFolders) {
-    const commandsPath = join(foldersPath, folder);
-    const commandFiles = (await readdir(commandsPath)).filter(
-      (file) => file.endsWith(".js") && file !== "helpers.js",
+    const command: SlashCommand = await import(filePath).then(
+      (module) => module.default,
     );
 
-    for (const file of commandFiles) {
-      const filePath = join(commandsPath, file);
-      const command = await import(filePath);
-
-      if ("data" in command && "execute" in command) {
-        commands.push(command.data.toJSON());
-      } else {
-        console.log(
-          `[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`,
-        );
-      }
+    // Add type guard to ensure proper typing
+    if (isSlashCommand(command)) {
+      client.slashCommands.set(command.data.name, command);
+      commands.push(command.data.toJSON());
+    } else {
+      logger.warn(
+        `[WARNING] The command at ${filePath} is missing required properties.`,
+      );
     }
   }
 
@@ -67,11 +53,23 @@ async function loadCommandsOld() {
       `Successfully reloaded ${data.length} application (/) commands.`,
     );
   } catch (error) {
-    console.error(error);
+    logger.error("Error deploying commands:", error);
   }
 }
+// Add type guard for SlashCommand
+function isSlashCommand(command: unknown): command is SlashCommand {
+  return (
+    typeof command === "object" &&
+    command !== null &&
+    "data" in command &&
+    "execute" in command &&
+    typeof command.data === "object" &&
+    typeof command.execute === "function"
+  );
+}
 
-loadCommandsOld().catch((error) => {
-  console.error("Error loading commands:", error);
+const client = new Client({ intents: [] });
+deployCommands(client).catch((error) => {
+  logger.error("Error loading commands:", error);
   process.exit(1);
 });

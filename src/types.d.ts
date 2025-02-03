@@ -8,7 +8,7 @@ import {
 } from "discord.js";
 
 export interface SlashCommand {
-  command:
+  data:
     | SlashCommandBuilder
     | Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">;
   execute: (interaction: ChatInputCommandInteraction) => Promise<void>;

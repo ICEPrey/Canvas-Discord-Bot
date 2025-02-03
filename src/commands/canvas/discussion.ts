@@ -12,10 +12,12 @@ import { getCourses, getDiscussions } from "../../helpers/api";
 import { convert } from "html-to-text";
 import { Course, DiscussionTopic } from "../../types";
 
-export const data = new SlashCommandBuilder()
-  .setName("discussion")
-  .setDescription("Fetches the latest discussion from Canvas")
-  .setDMPermission(false);
+export default {
+  data: new SlashCommandBuilder()
+    .setName("discussion")
+    .setDescription("Fetches the latest discussion from Canvas"),
+  execute,
+};
 
 export async function execute(interaction: ChatInputCommandInteraction) {
   try {

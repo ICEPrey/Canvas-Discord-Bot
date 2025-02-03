@@ -17,7 +17,12 @@ import logger from "../../logger";
 export const data = new SlashCommandBuilder()
   .setName("account")
   .setDescription("Set an access token to use the /assignment command")
-  .setDMPermission(false);
+  .addStringOption((option) =>
+    option
+      .setName("token")
+      .setDescription("Your Canvas access token")
+      .setRequired(true),
+  );
 
 export async function execute(interaction: ChatInputCommandInteraction) {
   const userId = interaction.user.id;

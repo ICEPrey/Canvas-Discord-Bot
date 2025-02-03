@@ -7,10 +7,12 @@ import { randomColor } from "../../helpers/colors";
 import { Assignment, Command, MissingAssignmentResponse } from "../../types";
 import { getAllAssignments } from "../../helpers/api";
 
-export const data = new SlashCommandBuilder()
-  .setName("missing")
-  .setDescription("Find which missing assignments are due")
-  .setDMPermission(false);
+export default {
+  data: new SlashCommandBuilder()
+    .setName("missing")
+    .setDescription("Find which missing assignments are due"),
+  execute,
+};
 
 export async function execute(interaction: ChatInputCommandInteraction) {
   try {
