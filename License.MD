@@ -1,6 +1,7 @@
-# MIT License
+# Modified MIT License
+## Based on the MIT License with additional attribution requirements
 
-## Copyright (c) 2023 [Current Username]
+## Copyright (c) 2023 ICEPrey
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -10,12 +11,12 @@ copies of the Software, and to permit persons to whom the Software is
 furnished to do so, subject to the following conditions:
 
 1. The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+   copies or substantial portions of the Software.
 
 2. Any modified versions of the Software must prominently display the following
-credit: "Based on work by [Current Username] (https://github.com/[Current Username])" in the software's
-documentation, about section, or equivalent prominent location. The current username and URL can be found
-in the most recent version of this license at https://github.com/ICEPrey/Canvas-Discord-Bot.
+   credit: "Based on work by ICEPrey (https://github.com/ICEPrey)" in the software's
+   documentation, about section, or equivalent prominent location. The current username and URL can be found
+   in the most recent version of this license at https://github.com/ICEPrey/Canvas-Discord-Bot.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
