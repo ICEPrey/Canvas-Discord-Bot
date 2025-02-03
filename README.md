@@ -3,8 +3,8 @@
 
 <div align="center">
   <a href="https://github.com/ICEPrey/Canvas-Discord-Bot">
-    <img src="https://www.uab.edu/elearning/images/pictures/academic-technologies/logos/canvas.png" alt="Logo" width="288" height="288">
-    <p style="font-style: italic; font-size: 0.8em;">The Canvas logo is used for identification purposes only and remains the property of Instructure, Inc.</p>
+    <img src="https://www.uab.edu/elearning/images/pictures/academic-technologies/logos/canvas.png" alt="Logo" width="288" height="288" style="border-radius: 50%;">
+    <p style="font-style: italic; font-size: 0.8em; color: red;">The Canvas logo is used for identification purposes only and remains the property of Instructure, Inc.</p>
 
   </a>
 
@@ -57,7 +57,6 @@
 ### Disclaimer
 
 This project is not affiliated with, maintained, or endorsed by Instructure, Inc. or Canvas LMS. It is an independent third-party integration.
-
 
 (Still Developing) 📅 Synchronized Calendars: Sync your Canvas course calendars with your Discord server to effortlessly manage your schedule. The bot ensures that you're always aware of what's ahead.
 
