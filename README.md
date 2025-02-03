@@ -52,6 +52,9 @@
 
 🔔 Stay Informed: Receive instant notifications about upcoming assignments, quizzes, and important announcements in your DM's. Never miss a due date again!
 
+### Disclaimer
+This project is not affiliated with, maintained, or endorsed by Instructure, Inc. or Canvas LMS. It is an independent third-party integration.
+
 (Still Developing) 📅 Synchronized Calendars: Sync your Canvas course calendars with your Discord server to effortlessly manage your schedule. The bot ensures that you're always aware of what's ahead.
 
 📢 Announcement Broadcasting: Professors and instructors can easily broadcast course announcements to your DM's, ensuring effective communication with students.
