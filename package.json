@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "deploy": "bun ./dist/deployCommands.js",
-    "start": "bun run build && bun ./dist/index.js",
+    "start": "bun run build && node ./dist/index.js",
     "watch": "bunx tsc -w",
     "format": "bunx prettier --write .",
     "lint": "eslint . --fix --ignore-pattern 'dist/*'",
