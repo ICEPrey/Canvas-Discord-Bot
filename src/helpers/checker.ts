@@ -1,6 +1,7 @@
 import { Client } from "discord.js";
 import { CanvasUser, DataItem } from "../types";
 import { fetchUsers } from "./supabase";
+import logger from "../logger";
 
 export async function runChecker<T extends DataItem>(
   client: Client,
@@ -22,9 +23,9 @@ export async function runChecker<T extends DataItem>(
         }
       }
     }
-    console.log(logSuccessMessage);
+    logger.info(logSuccessMessage);
   } catch (error) {
-    console.error(logErrorMessage, error);
+    logger.error({ error }, logErrorMessage);
   } finally {
     setTimeout(
       () =>
@@ -38,6 +39,6 @@ export async function runChecker<T extends DataItem>(
         ),
       interval,
     );
-    console.log(`Next check in ${interval / 3600000} hours.`);
+    logger.info(`Next check in ${interval / 3600000} hours.`);
   }
 }

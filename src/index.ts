@@ -2,8 +2,10 @@ import { readdir } from "fs/promises";
 import { join } from "path/posix";
 import { Client, Collection, GatewayIntentBits } from "discord.js";
 import { CONFIG } from "./config";
+import logger from "./logger";
 
 async function main() {
+  logger.info("Starting bot...");
   const client: Client = new Client({ intents: [GatewayIntentBits.Guilds] });
   client.commands = new Collection();
 
@@ -50,6 +52,6 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error("An error occurred:", error);
+  logger.error(error, "Error in main function");
   process.exit(1);
 });

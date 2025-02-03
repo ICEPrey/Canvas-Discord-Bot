@@ -8,6 +8,10 @@ import {
 } from "../types";
 import { CONFIG } from "../config";
 
+function buildCanvasUrl(endpoint: string): string {
+  return `${CONFIG.CANVAS_DOMAIN}/api/v1/${endpoint}`;
+}
+
 export async function fetchData<T>(
   userId: string,
   endpoint: string,
@@ -51,10 +55,8 @@ export async function fetchAssignments(
   userId: string,
 ): Promise<{ message: string; assignments: Assignment[] }> {
   try {
-    const assignments = await fetchData<Assignment[]>(
-      userId,
-      `courses/${courseId}/assignments`,
-    );
+    const url = buildCanvasUrl(`courses/${courseId}/assignments`);
+    const assignments = await fetchData<Assignment[]>(userId, url);
     return {
       message: "Assignments fetched successfully",
       assignments: assignments,
@@ -95,13 +97,11 @@ export async function getAllAssignments(
 
 export async function getCourses(userId: string): Promise<Course[]> {
   try {
-    return await fetchData<Course[]>(userId, "courses", {
-      enrollment_type: "student",
-      enrollment_state: "active",
-    });
+    const url = buildCanvasUrl("courses");
+    return await fetchData<Course[]>(userId, url);
   } catch (error) {
-    console.error("Failed to fetch courses:", error);
-    throw new Error("Error fetching courses.");
+    console.error("Error fetching courses:", error);
+    throw new Error("Failed to fetch courses");
   }
 }
 
@@ -109,45 +109,11 @@ export async function getAllAnnouncements(
   userId: string,
 ): Promise<AnnouncementPost[]> {
   try {
-    const courses = await getCourses(userId);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    let allAnnouncements: AnnouncementPost[] = [];
-
-    for (const course of courses) {
-      try {
-        const announcements = await fetchData<AnnouncementPost[]>(
-          userId,
-          "announcements",
-          { context_codes: `course_${course.id}` },
-        );
-
-        const filteredAnnouncements = announcements
-          .filter((announcement) => {
-            const announcementDate = new Date(announcement.posted_at || "");
-            return announcementDate >= today;
-          })
-          .map((announcement) => ({
-            ...announcement,
-            id:
-              announcement.id ||
-              `${announcement.title}-${announcement.posted_at}`,
-          }));
-
-        allAnnouncements = allAnnouncements.concat(filteredAnnouncements);
-      } catch (error) {
-        console.error(
-          `Failed to fetch announcements for course ${course.id}:`,
-          error,
-        );
-      }
-    }
-
-    return allAnnouncements;
+    const url = buildCanvasUrl("announcements");
+    return await fetchData<AnnouncementPost[]>(userId, url);
   } catch (error) {
-    console.error("Failed to fetch all announcements:", error);
-    throw new Error("Error fetching all announcements.");
+    console.error("Error fetching announcements:", error);
+    throw new Error("Failed to fetch announcements");
   }
 }
 
@@ -164,7 +130,10 @@ export async function fetchAssignmentChecker(
     tomorrow.setHours(23, 59, 59, 999);
 
     const assignmentPromises = courses.map((course) =>
-      fetchData<Assignment[]>(userId, `courses/${course.id}/assignments`),
+      fetchData<Assignment[]>(
+        userId,
+        buildCanvasUrl(`courses/${course.id}/assignments`),
+      ),
     );
 
     const allAssignments = await Promise.all(assignmentPromises);
@@ -184,13 +153,34 @@ export async function getDiscussions(
   courseId: number,
 ): Promise<DiscussionTopic[]> {
   try {
-    const discussions = await fetchData<DiscussionTopic[]>(
-      userId,
-      `courses/${courseId}/discussion_topics`,
-    );
-    return discussions;
+    const url = buildCanvasUrl(`courses/${courseId}/discussion_topics`);
+    return await fetchData<DiscussionTopic[]>(userId, url);
   } catch (error) {
     console.error(`Failed to fetch discussions for course ${courseId}:`, error);
-    throw new Error("Error fetching discussions.");
+    throw new Error("Error fetching discussions");
+  }
+}
+
+export async function fetchMissingAssignments(
+  userId: string,
+): Promise<Assignment[]> {
+  try {
+    const courses = await getCourses(userId);
+    const assignmentPromises = courses.map((course) =>
+      fetchData<Assignment[]>(
+        userId,
+        buildCanvasUrl(`courses/${course.id}/assignments`),
+      ),
+    );
+
+    const allAssignments = await Promise.all(assignmentPromises);
+
+    return allAssignments.flat().filter((assignment) => {
+      const dueDate = new Date(assignment.due_at);
+      return dueDate < new Date() && !assignment.has_submitted_submissions;
+    });
+  } catch (error) {
+    console.error("Error fetching missing assignments:", error);
+    throw new Error("Failed to fetch missing assignments");
   }
 }

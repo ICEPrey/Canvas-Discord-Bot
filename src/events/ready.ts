@@ -5,11 +5,13 @@ import { runChecker } from "../helpers/checker";
 import { getCanvasToken } from "../helpers/supabase";
 import { fetchAssignmentChecker, getAllAnnouncements } from "../helpers/api";
 import { postAssignment } from "./assignmentChecker";
+import logger from "../logger";
 
 const clientReadyEvent: BotEvent = {
   name: Events.ClientReady,
   once: true,
   execute: async (client: Client) => {
+    logger.info({ user: client.user?.tag }, "Bot is ready");
     console.log(`Up! Logged In As ${client?.user?.tag}`);
     client?.user?.setActivity("Your Assignments", {
       type: ActivityType.Watching,
