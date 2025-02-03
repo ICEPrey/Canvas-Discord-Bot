@@ -1,9 +1,9 @@
-import { Events } from "discord.js";
+import { Events, Interaction } from "discord.js";
 import { BotEvent } from "../types";
 
 const clientReadyEvent: BotEvent = {
   name: Events.InteractionCreate,
-  execute: async function(interaction) {
+  execute: async function (interaction: Interaction) {
     if (!interaction.isCommand()) return;
 
     const command = interaction.client.commands.get(interaction.commandName);

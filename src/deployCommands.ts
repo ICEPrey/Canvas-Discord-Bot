@@ -2,16 +2,33 @@ import {
   REST,
   RESTPostAPIApplicationCommandsJSONBody,
   Routes,
+  Client,
 } from "discord.js";
 import { readdir } from "fs/promises";
 import { join } from "path/posix";
-import { Command } from "./types";
+import { Command, SlashCommand } from "./types";
 import { CONFIG } from "./config";
+import fs from "fs";
+import path from "path";
+import logger from "./logger";
 
 const commands: Command[] = [];
 const foldersPath = join(__dirname, "commands");
 
-async function loadCommands() {
+async function loadCommands(client: Client) {
+  const commandsPath = path.join(__dirname, "../commands");
+  const commandFiles = fs
+    .readdirSync(commandsPath)
+    .filter((file) => file.endsWith(".ts"));
+
+  for (const file of commandFiles) {
+    const filePath = path.join(commandsPath, file);
+    const command: SlashCommand = require(filePath);
+    client.slashCommands.set(command.command.name, command);
+  }
+}
+
+async function loadCommandsOld() {
   const commandFolders = await readdir(foldersPath);
 
   for (const folder of commandFolders) {
@@ -37,7 +54,7 @@ async function loadCommands() {
   const rest = new REST().setToken(CONFIG.TOKEN);
 
   try {
-    console.log(
+    logger.info(
       `Started refreshing ${commands.length} application (/) commands.`,
     );
 
@@ -46,7 +63,7 @@ async function loadCommands() {
       { body: commands },
     )) as RESTPostAPIApplicationCommandsJSONBody[];
 
-    console.log(
+    logger.info(
       `Successfully reloaded ${data.length} application (/) commands.`,
     );
   } catch (error) {
@@ -54,7 +71,7 @@ async function loadCommands() {
   }
 }
 
-loadCommands().catch((error) => {
+loadCommandsOld().catch((error) => {
   console.error("Error loading commands:", error);
   process.exit(1);
 });

@@ -1,5 +1,6 @@
 import crypto from "crypto";
 import { CONFIG } from "../config";
+import logger from "../logger";
 
 const IV_LENGTH = 16;
 const ENCRYPTION_KEY = CONFIG.ENCRYPTION_KEY;
@@ -27,18 +28,34 @@ export function encryptToken(token: string): string {
     );
     let encrypted = cipher.update(token);
     encrypted = Buffer.concat([encrypted, cipher.final()]);
-    return iv.toString("hex") + ":" + encrypted.toString("hex");
+
+    // Add HMAC
+    const hmac = crypto.createHmac("sha256", Buffer.from(validatedKey, "hex"));
+    hmac.update(encrypted);
+    const hmacDigest = hmac.digest("hex");
+
+    return (
+      iv.toString("hex") + ":" + encrypted.toString("hex") + ":" + hmacDigest
+    );
   } catch (error) {
-    console.error("Error in encryptToken:", error);
+    logger.error({ error }, "Error in encryptToken");
     throw error;
   }
 }
 
 export function decryptToken(encryptedToken: string): string {
   try {
-    const textParts = encryptedToken.split(":");
-    const iv = Buffer.from(textParts[0], "hex");
-    const encryptedText = Buffer.from(textParts.slice(1).join(":"), "hex");
+    const [ivHex, encryptedHex, hmacDigest] = encryptedToken.split(":");
+
+    // Verify HMAC
+    const hmac = crypto.createHmac("sha256", Buffer.from(validatedKey, "hex"));
+    hmac.update(Buffer.from(encryptedHex, "hex"));
+    if (hmac.digest("hex") !== hmacDigest) {
+      throw new Error("HMAC verification failed");
+    }
+
+    const iv = Buffer.from(ivHex, "hex");
+    const encryptedText = Buffer.from(encryptedHex, "hex");
     const decipher = crypto.createDecipheriv(
       "aes-256-cbc",
       Buffer.from(validatedKey, "hex"),
@@ -48,7 +65,7 @@ export function decryptToken(encryptedToken: string): string {
     decrypted = Buffer.concat([decrypted, decipher.final()]);
     return decrypted.toString();
   } catch (error) {
-    console.error("Error in decryptToken:", error);
+    logger.error({ error }, "Error in decryptToken");
     throw error;
   }
 }

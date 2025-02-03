@@ -17,13 +17,13 @@ export interface SlashCommand {
 }
 
 export interface Command {
-  data: {
-    name: string;
-    permissions: PermissionResolvable[];
-    aliases: string[];
-    cooldown?: number;
+  readonly data: {
+    readonly name: string;
+    readonly permissions: PermissionResolvable[];
+    readonly aliases: string[];
+    readonly cooldown?: number;
   };
-  execute: (interaction: Interaction) => Promise<void>;
+  readonly execute: (interaction: Interaction) => Promise<void>;
 }
 
 interface GuildOptions {

@@ -5,6 +5,8 @@ import js from "@eslint/js";
 import tseslint from "@typescript-eslint/eslint-plugin";
 import tsParser from "@typescript-eslint/parser";
 import { FlatCompat } from "@eslint/eslintrc";
+import eslintConfigPrettier from "eslint-config-prettier";
+import eslintPluginPrettier from "eslint-plugin-prettier";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -16,6 +18,7 @@ const compat = new FlatCompat({
 
 export default [
   ...compat.extends("eslint:recommended"),
+  eslintConfigPrettier,
   {
     ignores: ["dist/**", "node_modules/**"],
     languageOptions: {
@@ -31,6 +34,7 @@ export default [
 
     files: ["**/*.{ts,mts,cts}"],
     plugins: {
+      prettier: eslintPluginPrettier,
       "@typescript-eslint": tseslint,
     },
     rules: {
@@ -99,7 +103,7 @@ export default [
       "space-before-function-paren": [
         "error",
         {
-          anonymous: "never",
+          anonymous: "always",
           named: "never",
           asyncArrow: "always",
         },
@@ -118,6 +122,11 @@ export default [
       ...tseslint.configs.recommended.rules,
       ...tseslint.configs.strict.rules,
       ...tseslint.configs.stylistic.rules,
+
+      // Add these Prettier-compatible rules
+      "prettier/prettier": "error",
+      "arrow-body-style": "off",
+      "prefer-arrow-callback": "off",
     },
   },
 ];

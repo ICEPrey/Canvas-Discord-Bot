@@ -12,6 +12,7 @@ import {
 import { getCanvasToken, upsertUser } from "../../helpers/supabase";
 import axios from "axios";
 import { SchoolSearchResult } from "../../types";
+import logger from "../../logger";
 
 export const data = new SlashCommandBuilder()
   .setName("account")
@@ -149,9 +150,9 @@ export async function execute(interaction: ChatInputCommandInteraction) {
       });
     }
   } catch (error) {
-    console.error("Error in account command:", error);
-    await interaction.followUp({
-      content: "An error occurred or the command timed out. Please try again.",
+    logger.error({ error }, "Error in account command");
+    await interaction.reply({
+      content: "An error occurred while processing your request.",
       ephemeral: true,
     });
   }
