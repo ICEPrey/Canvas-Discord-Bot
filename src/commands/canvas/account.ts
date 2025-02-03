@@ -13,7 +13,6 @@ import { getCanvasToken, upsertUser } from "../../helpers/supabase";
 import axios from "axios";
 import { SchoolSearchResult } from "../../types";
 import logger from "../../logger";
-
 export const data = new SlashCommandBuilder()
   .setName("account")
   .setDescription("Set an access token to use the /assignment command")

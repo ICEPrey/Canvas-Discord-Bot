@@ -5,11 +5,9 @@ import {
 } from "discord.js";
 import { randomColor } from "../../helpers/colors";
 
-export default {
-  data: new SlashCommandBuilder()
-    .setName("ping")
-    .setDescription("Check the bot's ping and API latency"),
-};
+export const data = new SlashCommandBuilder()
+  .setName("ping")
+  .setDescription("Check the bot's ping and API latency");
 
 export async function execute(interaction: ChatInputCommandInteraction) {
   const sent = await interaction.reply({
