@@ -1,13 +1,13 @@
-import dotenv from "dotenv";
+import { z } from "zod";
 
-dotenv.config();
+const envSchema = z.object({
+  TOKEN: z.string().min(1),
+  CLIENT_ID: z.string().min(1),
+  GUILD_ID: z.string().min(1),
+  CANVAS_DOMAIN: z.string().url(),
+  SUPABASE_URL: z.string().url(),
+  SUPABASE_ANON: z.string().min(1),
+  ENCRYPTION_KEY: z.string().length(64),
+});
 
-export const CONFIG = {
-  TOKEN: process.env.TOKEN || "",
-  CLIENT_ID: process.env.CLIENT_ID || "",
-  GUILD_ID: process.env.GUILD_ID || "",
-  CANVAS_DOMAIN: process.env.CANVAS_DOMAIN || "",
-  SUPABASE_URL: process.env.SUPABASE_URL || "",
-  SUPABASE_ANON: process.env.SUPABASE_ANON || "",
-  ENCRYPTION_KEY: process.env.ENCRYPTION_KEY || "",
-};
+export const CONFIG = envSchema.parse(process.env);
