@@ -1,4 +1,5 @@
 # Modified MIT License
+
 ## Based on the MIT License with additional attribution requirements
 
 ## Copyright (c) 2023 ICEPrey
