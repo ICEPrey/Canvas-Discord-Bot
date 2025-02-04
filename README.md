@@ -2,7 +2,7 @@
 <br />
 
 <div align="center">
-  <a href="https://github.com/ICEPrey/Canvas-Discord-Bot">
+  <a href="https://github.com/MohammedADev/Canvas-Discord-Bot">
     <img src="https://www.uab.edu/elearning/images/pictures/academic-technologies/logos/canvas.png" alt="Logo" width="288" height="288" style="border-radius: 50%;">
     <p style="font-style: italic; font-size: 0.8em; color: red;">The Canvas logo is used for identification purposes only and remains the property of Instructure, Inc.</p>
 
@@ -19,9 +19,9 @@
   <p align="center">
     An awesome Canvas Discord bot to assist and connect your Discord server with Canvas!
     ·
-    <a href="https://github.com/ICEPrey/Canvas-Discord-Bot/issues">Report Bug</a>
+    <a href="https://github.com/MohammedADev/Canvas-Discord-Bot/issues">Report Bug</a>
     ·
-    <a href="https://github.com/ICEPrey/Canvas-Discord-Bot/issues">Request Feature</a>
+    <a href="https://github.com/MohammedADev/Canvas-Discord-Bot/issues">Request Feature</a>
   </p>
 </div>
 
@@ -120,7 +120,7 @@ Supabase Account:
 
 1. Clone the repo
    ```sh
-   git clone https://github.com/ICEPrey/Canvas-Discord-Bot
+   git clone https://github.com/MohammedADev/Canvas-Discord-Bot
    ```
 2. Install NPM packages
    ```sh
@@ -190,16 +190,16 @@ Distributed under the MIT License. See [license] for more information.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-[contributors-shield]: https://img.shields.io/github/stars/ICEPrey/Canvas-Discord-Bot.svg?style=for-the-badge
-[contributors-url]: https://github.com/ICEPrey/Canvas-Discord-Bot/graphs/contributors
-[forks-shield]: https://img.shields.io/github/stars/ICEPrey/Canvas-Discord-Bot.svg?style=for-the-badge
-[forks-url]: https://github.com/ICEPrey/Canvas-Discord-Bot/network/members
-[stars-shield]: https://img.shields.io/github/stars/ICEPrey/Canvas-Discord-Bot.svg?style=for-the-badge
-[stars-url]: https://github.com/ICEPrey/Canvas-Discord-Bot/stargazers
-[issues-shield]: https://img.shields.io/github/stars/ICEPrey/Canvas-Discord-Bot.svg?style=for-the-badge
-[issues-url]: https://github.com/ICEPrey/Canvas-Discord-Bot/issues
-[license-shield]: https://img.shields.io/github/license/othneildrew/Best-README-Template.svg?style=for-the-badge
-[license-url]: https://github.com/ICEPrey/Canvas-Discord-Bot/License.MD
+[contributors-shield]: https://img.shields.io/github/stars/MohammedADev/Canvas-Discord-Bot.svg?style=for-the-badge
+[contributors-url]: https://github.com/MohammedADev/Canvas-Discord-Bot/graphs/contributors
+[forks-shield]: https://img.shields.io/github/stars/MohammedADev/Canvas-Discord-Bot.svg?style=for-the-badge
+[forks-url]: https://github.com/MohammedADev/Canvas-Discord-Bot/network/members
+[stars-shield]: https://img.shields.io/github/stars/MohammedADev/Canvas-Discord-Bot.svg?style=for-the-badge
+[stars-url]: https://github.com/MohammedADev/Canvas-Discord-Bot/stargazers
+[issues-shield]: https://img.shields.io/github/stars/MohammedADev/Canvas-Discord-Bot.svg?style=for-the-badge
+[issues-url]: https://github.com/MohammedADev/Canvas-Discord-Bot/issues
+[license-shield]: https://img.shields.io/github/license/MohammedADev/Best-README-Template.svg?style=for-the-badge
+[license-url]: https://github.com/MohammedADev/Canvas-Discord-Bot/License.MD
 [product-screenshot]: images/screenshot.png
 [bun]: https://img.shields.io/badge/Bun-339933?style=for-the-badge&logo=bun&logoColor=white
 [supabase]: https://img.shields.io/badge/Supabase-181818?style=for-the-badge&logo=supabase&logoColor=white

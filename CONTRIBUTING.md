@@ -4,11 +4,11 @@ First off, thank you for considering contributing to Canvas Discord Bot! It's pe
 
 ## Where do I go from here?
 
-If you've noticed a bug or have a feature request, make sure to check our [Issues](https://github.com/ICEPrey/Canvas-Discord-Bot/issues) page to see if someone else has already created a ticket. If not, go ahead and [make one](https://github.com/ICEPrey/Canvas-Discord-Bot/issues/new)!
+If you've noticed a bug or have a feature request, make sure to check our [Issues](https://github.com/MohammedADev/Canvas-Discord-Bot/issues) page to see if someone else has already created a ticket. If not, go ahead and [make one](https://github.com/MohammedADev/Canvas-Discord-Bot/issues/new)!
 
 ## Fork & create a branch
 
-If this is something you think you can fix, then [fork Canvas Discord Bot](https://github.com/ICEPrey/Canvas-Discord-Bot/fork) and create a branch with a descriptive name.
+If this is something you think you can fix, then [fork Canvas Discord Bot](https://github.com/MohammedADev/Canvas-Discord-Bot/fork) and create a branch with a descriptive name.
 
 A good branch name would be (where issue #325 is the ticket you're working on):
 
@@ -33,7 +33,7 @@ At this point, you're ready to make your changes! Feel free to ask for help; eve
 At this point, you should switch back to your main branch and make sure it's up to date with the main branch:
 
 ```bash
-git remote add upstream git@github.com:ICEPrey/Canvas-Discord-Bot.git
+git remote add upstream git@github.com:MohammedADev/Canvas-Discord-Bot.git
 git checkout main
 git pull upstream main
 ```
@@ -46,7 +46,7 @@ git rebase main
 git push --set-upstream origin 325-add-japanese-translations
 ```
 
-Finally, go to GitHub and [make a Pull Request](https://github.com/ICEPrey/Canvas-Discord-Bot/compare) :D
+Finally, go to GitHub and [make a Pull Request](https://github.com/MohammedADev/Canvas-Discord-Bot/compare) :D
 
 ## Keeping your Pull Request updated
 

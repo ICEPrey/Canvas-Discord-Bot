@@ -5,7 +5,7 @@
   "main": "./dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "deploy": "bun ./dist/deployCommands.js",
+    "deploy": "node ./dist/deployCommands.js",
     "start": "bun run build && node ./dist/index.js",
     "watch": "bunx tsc -w",
     "format": "bunx prettier --write .",
@@ -22,9 +22,9 @@
     "discord-js",
     "instructure",
     "instructure-canvas",
-    "iceprey"
+    "MohammedADev"
   ],
-  "author": "https://github.com/ICEPrey",
+  "author": "https://github.com/MohammedADev",
   "license": "MIT",
   "dependencies": {
     "@eslint/migrate-config": "^1.3.7",
